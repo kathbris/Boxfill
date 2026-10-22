@@ -1,0 +1,1400 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Box Fill Lab · CEC 2024</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@600;700&display=swap">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#e7ebef;--panel:#ffffff;--panel-2:#f2f5f7;--ink:#15202a;--muted:#51616d;--line:#ccd6dd;
+  --accent:#0a6a72;--accent-2:#08545b;--on-accent:#ffffff;--accent-soft:#d8edef;
+  --ok:#17703d;--ok-bg:#e0f3e7;--bad:#ac2a22;--bad-bg:#fcebe9;--warn:#734f00;--warn-bg:#fff2cf;
+  --head:#0f2f35;--head-ink:#eaf5f6;--shadow:0 1px 2px rgba(15,30,42,.08),0 8px 22px rgba(15,30,42,.07);
+  --head-font:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
+  --body-font:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#10161b;--panel:#19222a;--panel-2:#202b34;--ink:#e7eef2;--muted:#9fb0bb;--line:#2e3b45;
+    --accent:#55c2c8;--accent-2:#7bd3d8;--on-accent:#05272b;--accent-soft:#153238;
+    --ok:#62d38f;--ok-bg:#123222;--bad:#ff8d84;--bad-bg:#3a1816;--warn:#f2c45a;--warn-bg:#362a0b;
+    --head:#0a1d21;--head-ink:#e2f1f2;--shadow:0 1px 2px rgba(0,0,0,.4),0 8px 22px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10161b;--panel:#19222a;--panel-2:#202b34;--ink:#e7eef2;--muted:#9fb0bb;--line:#2e3b45;
+  --accent:#55c2c8;--accent-2:#7bd3d8;--on-accent:#05272b;--accent-soft:#153238;
+  --ok:#62d38f;--ok-bg:#123222;--bad:#ff8d84;--bad-bg:#3a1816;--warn:#f2c45a;--warn-bg:#362a0b;
+  --head:#0a1d21;--head-ink:#e2f1f2;--shadow:0 1px 2px rgba(0,0,0,.4),0 8px 22px rgba(0,0,0,.3);
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font:400 16px/1.5 var(--body-font);-webkit-text-size-adjust:100%}
+h1,h2,h3{font-family:var(--head-font);line-height:1.15;margin:0}
+h2{font-size:22px}
+h3{font-size:17px;margin:20px 0 8px}
+p{margin:0 0 10px}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+/* header */
+.top{background:var(--head);color:var(--head-ink)}
+.top-in{max-width:1180px;margin:0 auto;padding:18px 20px 0}
+.brand{display:flex;align-items:center;gap:14px}
+.brand svg{flex:none}
+.brand h1{font-size:30px;font-weight:700;letter-spacing:.2px}
+.brand p{margin:2px 0 0;color:color-mix(in srgb,var(--head-ink) 72%,transparent);font-size:14px}
+.tabs{display:flex;gap:4px;margin-top:16px;overflow-x:auto}
+.tab{appearance:none;border:0;background:transparent;color:color-mix(in srgb,var(--head-ink) 75%,transparent);padding:11px 18px;font:600 15px var(--body-font);border-radius:10px 10px 0 0;cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{background:var(--bg);color:var(--ink)}
+.tab:not([aria-selected="true"]):hover{color:var(--head-ink);background:color-mix(in srgb,var(--head-ink) 10%,transparent)}
+
+main{max-width:1180px;margin:0 auto;padding:20px 20px 56px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
+.muted{color:var(--muted)}
+.small{font-size:13.5px}
+.hidden{display:none!important}
+
+/* controls */
+.toolbar{display:flex;flex-wrap:wrap;gap:12px 14px;align-items:flex-end;margin-bottom:14px}
+.ctl{display:flex;flex-direction:column;gap:4px;min-width:170px;flex:1 1 170px}
+.ctl label,.field label,legend{font-size:13.5px;font-weight:600;color:var(--muted)}
+select,input[type=text],input[type=number]{width:100%;height:42px;padding:0 11px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink)}
+input.bad{border-color:var(--bad);background:var(--bad-bg)}
+input.good{border-color:var(--ok);background:var(--ok-bg)}
+.btn{appearance:none;border:1px solid var(--line);background:var(--panel);color:var(--ink);height:42px;padding:0 18px;border-radius:8px;font-weight:600;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.primary:hover{background:var(--accent-2);border-color:var(--accent-2)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.toolbar .btn{flex:0 0 auto}
+
+.scorebar{display:flex;flex-wrap:wrap;gap:8px 22px;font-size:14px;color:var(--muted);margin:0 0 16px;padding:10px 14px;background:var(--panel-2);border:1px solid var(--line);border-radius:10px}
+.scorebar b{color:var(--ink);font-variant-numeric:tabular-nums}
+
+/* practice layout */
+.practice{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);gap:20px;align-items:start}
+.fig{position:sticky;top:12px;padding:14px}
+.fig-cap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;margin:0 2px 10px}
+.fig-cap strong{font-family:var(--head-font);font-size:19px}
+.fig svg{display:block;width:100%;height:auto;border-radius:9px;border:1px solid var(--line)}
+.fig-note{margin:10px 2px 0}
+
+.q-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+.tries{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--muted)}
+.dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--line);background:transparent}
+.dot.hit{background:var(--ok);border-color:var(--ok)}
+.dot.miss{background:var(--bad);border-color:var(--bad)}
+.inv{list-style:none;margin:0 0 16px;padding:0;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.inv li{display:flex;gap:12px;padding:10px 12px;border-bottom:1px solid var(--line);font-size:15px}
+.inv li:last-child{border-bottom:0}
+.inv li:nth-child(even){background:var(--panel-2)}
+.tag{flex:none;min-width:26px;height:26px;border-radius:6px;background:var(--accent-soft);color:var(--accent-2);font:700 14px/26px var(--head-font);text-align:center;padding:0 5px}
+.ask{font-weight:600;font-size:16px;margin:0 0 12px}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:12px}
+.field{display:flex;flex-direction:column;gap:4px}
+fieldset{border:0;margin:0 0 14px;padding:0}
+.segs{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.seg{position:relative}
+.seg input{position:absolute;opacity:0;inset:0;cursor:pointer}
+.seg span{display:block;padding:10px 16px;border:1px solid var(--line);border-radius:8px;font-weight:600;background:var(--panel)}
+.seg input:checked+span{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.seg input:focus-visible+span{outline:3px solid var(--accent);outline-offset:2px}
+.seg input:disabled+span{opacity:.6}
+.seg.good span{box-shadow:0 0 0 2px var(--ok)}
+.seg.bad span{box-shadow:0 0 0 2px var(--bad)}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin:4px 0 0}
+
+.notice{margin-top:16px;padding:13px 15px;border-radius:10px;border:1px solid var(--line);font-size:15px}
+.notice.ok{background:var(--ok-bg);border-color:var(--ok);color:var(--ok)}
+.notice.bad{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
+.notice.warn{background:var(--warn-bg);border-color:var(--warn);color:var(--warn)}
+.notice b{display:block;margin-bottom:3px}
+.notice ul{margin:6px 0 0;padding-left:20px}
+.notice.ok,.notice.bad,.notice.warn{color:var(--ink)}
+.notice.ok b{color:var(--ok)}.notice.bad b{color:var(--bad)}.notice.warn b{color:var(--warn)}
+
+.solution{margin-top:18px}
+.solution h3{margin-top:0}
+table{width:100%;border-collapse:collapse;font-size:14.5px}
+th,td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:13.5px}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.total td{font-weight:700;border-top:2px solid var(--ink);border-bottom:0}
+.verdict-line{margin-top:12px;padding:12px 14px;border-radius:10px;font-weight:600}
+.verdict-line.ok{background:var(--ok-bg);color:var(--ok)}
+.verdict-line.bad{background:var(--bad-bg);color:var(--bad)}
+.excl{margin-top:12px;padding:10px 12px;background:var(--panel-2);border-radius:10px;border-left:4px solid var(--accent);font-size:14.5px}
+.rulechips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.chip{font-size:12.5px;font-weight:600;padding:3px 9px;border-radius:99px;background:var(--accent-soft);color:var(--accent-2)}
+
+
+/* box choices */
+.choices{display:grid;gap:8px;margin-top:6px}
+.choice{position:relative;display:block}
+.choice input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
+.choice>span{display:flex;flex-wrap:wrap;gap:2px 10px;align-items:baseline;padding:11px 14px;border:1px solid var(--line);border-radius:8px;background:var(--panel);font-weight:600}
+.choice>span .cx{font-weight:500;color:var(--muted);font-size:14px}
+.choice input:checked+span{background:var(--accent-soft);border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+.choice input:focus-visible+span{outline:3px solid var(--accent);outline-offset:2px}
+.choice input:disabled{cursor:default}
+.choice.good>span{background:var(--ok-bg);border-color:var(--ok);box-shadow:0 0 0 2px var(--ok)}
+.choice.bad>span{background:var(--bad-bg);border-color:var(--bad);box-shadow:0 0 0 2px var(--bad)}
+.choice.answer>span{border-color:var(--ok);box-shadow:0 0 0 2px var(--ok)}
+.chkwrap{flex:0 1 auto;min-width:0;justify-content:flex-end}
+.chkl{display:flex;align-items:center;gap:8px;min-height:42px;font-size:14.5px;font-weight:600;color:var(--ink);cursor:pointer}
+.chkl input{width:20px;height:20px;accent-color:var(--accent)}
+tr.hit td{background:var(--ok-bg)}
+.res-ok{color:var(--ok)}.res-bad{color:var(--bad)}.res-mid{color:var(--warn)}
+
+/* calculator */
+.calc{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:20px;align-items:start}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.stat{background:var(--panel-2);border-radius:10px;padding:10px 12px}
+.stat small{display:block;color:var(--muted);font-size:12.5px}
+.stat strong{font:700 20px var(--head-font);font-variant-numeric:tabular-nums}
+.result{border-radius:10px;padding:14px 16px;margin-bottom:12px}
+.result strong{font:700 26px var(--head-font);display:block}
+.result.pass{background:var(--ok-bg);color:var(--ok)}
+.result.fail{background:var(--bad-bg);color:var(--bad)}
+.meter{height:14px;background:var(--panel-2);border:1px solid var(--line);border-radius:99px;overflow:hidden;margin-bottom:6px}
+.bar{height:100%;background:var(--accent);transition:width .2s}
+.bar.over{background:var(--bad)}
+.sectionline{border-top:1px solid var(--line);margin:16px 0}
+.note{background:var(--panel-2);border-left:4px solid var(--accent);border-radius:8px;padding:11px 13px;font-size:14.5px;margin:12px 0}
+
+/* reference */
+.ref-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:20px;align-items:start}
+.scroll{overflow-x:auto}
+.ref-t th.grp{background:var(--panel-2);color:var(--ink);font-family:var(--head-font);font-size:15px}
+.legend-fine{font-size:13.5px;color:var(--muted);margin-top:14px}
+
+@media (max-width:980px){
+  .practice,.calc,.ref-grid{grid-template-columns:1fr}
+  .fig{position:static}
+}
+@media (max-width:560px){
+  .brand h1{font-size:25px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .grid3{grid-template-columns:1fr 1fr}
+  main{padding:14px 12px 44px}
+  .card{padding:15px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <svg width="46" height="46" viewBox="0 0 46 46" aria-hidden="true">
+        <polygon points="14,3 32,3 43,14 43,32 32,43 14,43 3,32 3,14" fill="#c9d2d9" stroke="#e9eef1" stroke-width="2"/>
+        <polygon points="16,9 30,9 37,16 37,30 30,37 16,37 9,30 9,16" fill="#7f8c96"/>
+        <circle cx="23" cy="23" r="6" fill="#f0a22b"/><circle cx="23" cy="23" r="2.4" fill="#8d4f0a"/>
+      </svg>
+      <div>
+        <h1>Box Fill Lab</h1>
+        <p>2024 Canadian Electrical Code, Rule 12-3034, Tables 22 and 23</p>
+      </div>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Sections">
+      <button class="tab" role="tab" id="tabBtn-practice" aria-selected="true" aria-controls="tab-practice" data-tab="practice">Practice</button>
+      <button class="tab" role="tab" id="tabBtn-calc" aria-selected="false" aria-controls="tab-calc" data-tab="calc">Calculator</button>
+      <button class="tab" role="tab" id="tabBtn-ref" aria-selected="false" aria-controls="tab-ref" data-tab="ref">Code tables</button>
+    </div>
+  </div>
+</header>
+
+<main>
+<!-- PRACTICE -->
+<section id="tab-practice" role="tabpanel" aria-labelledby="tabBtn-practice">
+  <div class="toolbar">
+    <div class="ctl"><label for="method">Method</label>
+      <select id="method">
+        <option value="vol">Table 22 · usable space in mL</option>
+        <option value="count">Table 23 · conductor count</option>
+      </select></div>
+    <div class="ctl"><label for="difficulty">Difficulty</label>
+      <select id="difficulty">
+        <option value="basic">Basic · one wire size, connectors only</option>
+        <option value="standard" selected>Standard · devices, studs, connectors</option>
+        <option value="mixed">Mixed · two wire sizes under one connector</option>
+        <option value="advanced">Advanced · deep devices, through runs, insulated bonds</option>
+      </select></div>
+    <div class="ctl"><label for="boxFilter">Choose from</label>
+      <select id="boxFilter">
+        <option value="all">All Table 23 box types</option>
+        <option value="junction">Junction and ceiling boxes</option>
+        <option value="device">Device boxes</option>
+        <option value="masonry">Masonry boxes</option>
+        <option value="cast">Cast FS and FD boxes</option>
+      </select></div>
+    <div class="ctl chkwrap"><label class="chkl" for="showVol"><input type="checkbox" id="showVol"> Show volumes with the choices</label></div>
+    <button class="btn primary" id="newQ" type="button">New question</button>
+  </div>
+  <p class="scorebar" id="scorebar"></p>
+
+  <div class="practice">
+    <figure class="card fig" style="margin:0">
+      <div class="fig-cap"><strong id="figTitle"></strong><span class="muted small" id="figSub"></span></div>
+      <div id="figure"></div>
+      <p class="fig-note muted small">The box is drawn at one size only, to show the wiring; the box size is your answer. Tags match the contents list. The dots on each tag show the conductors in that cable: black, white, red, green (insulated bond) and a copper ring (bare bond). On a receptacle, white goes to the silver screw on the left and black or red to the brass screw on the right. Drawn for clarity, not to scale.</p>
+    </figure>
+
+    <article class="card" id="qCard" aria-live="off">
+      <div class="q-head">
+        <h2 id="qTitle">Question</h2>
+        <div class="tries" id="tries"></div>
+      </div>
+      <p class="muted" id="qLead"></p>
+      <ul class="inv" id="inv"></ul>
+      <p class="ask" id="ask"></p>
+      <form id="ansForm" novalidate>
+        <div class="fields" id="fields"></div>
+        <fieldset id="choiceSet"><legend>Which box should be used? Choose the smallest box that is big enough.</legend><div class="choices" id="choices"></div></fieldset>
+        <div class="actions">
+          <button class="btn primary" type="submit" id="checkBtn">Check answer</button>
+          <button class="btn" type="button" id="skipBtn">Skip question</button>
+        </div>
+      </form>
+      <div id="feedback" aria-live="polite"></div>
+      <div id="solution" class="solution"></div>
+      <div class="actions hidden" id="nextRow"><button class="btn primary" type="button" id="nextBtn">Next question</button></div>
+    </article>
+  </div>
+</section>
+
+<!-- CALCULATOR -->
+<section id="tab-calc" role="tabpanel" aria-labelledby="tabBtn-calc" class="hidden">
+  <div class="calc">
+    <div class="card">
+      <h2>Build a box</h2>
+      <p class="muted small" style="margin-top:6px">Enter what is in the box and the calculator updates as you type.</p>
+      <div class="grid2">
+        <div class="field"><label for="bMethod">Method</label>
+          <select id="bMethod"><option value="vol">Table 22 · usable space in mL</option><option value="count">Table 23 · conductor count</option></select></div>
+        <div class="field"><label for="bBox">Box</label><select id="bBox"></select></div>
+      </div>
+      <div class="field hidden" id="bCustomWrap" style="margin-top:12px"><label for="bCustom">Marked usable volume (mL)</label><input id="bCustom" type="number" min="1" value="300"></div>
+      <div class="sectionline"></div>
+      <h3 style="margin-top:0">Insulated conductors</h3>
+      <p class="muted small">One for each insulated conductor entering or leaving and connected in the box. A conductor running through uncut counts once. Include insulated bonding conductors.</p>
+      <div class="grid3" id="bConductors"></div>
+      <h3>Other items</h3>
+      <div class="grid3">
+        <div class="field"><label for="bCaps">Wire connectors with insulating caps</label><input id="bCaps" type="number" min="0" value="0"></div>
+        <div class="field"><label for="bCapAwg">Largest wire under connectors</label><select id="bCapAwg"></select></div>
+        <div class="field"><label for="bStuds">Fixture studs or hickeys</label><input id="bStuds" type="number" min="0" value="0"></div>
+        <div class="field"><label for="bDevices">Flush devices on a single strap</label><input id="bDevices" type="number" min="0" value="0"></div>
+        <div class="field"><label for="bDevAwg">Largest wire at devices</label><select id="bDevAwg"></select></div>
+        <div class="field"><label for="bDeepN">Devices deeper than 2.54 cm</label><input id="bDeepN" type="number" min="0" value="0"></div>
+        <div class="field"><label for="bDepth">Depth of those devices (cm)</label><input id="bDepth" type="number" min="0" step="0.1" value="3.2"></div>
+        <div class="field"><label for="bBare">Bare bonding conductors</label><input id="bBare" type="number" min="0" value="0"></div>
+        <div class="field"><label for="bPig">Pigtails wholly inside</label><input id="bPig" type="number" min="0" value="0"></div>
+      </div>
+      <div class="note">Bare bonding conductors and pigtails that never leave the box are shown so you can see they add nothing. Rule 12-3034(1)(c).</div>
+      <button class="btn" id="bReset" type="button">Reset</button>
+    </div>
+    <div class="card">
+      <h2>Result</h2>
+      <div class="stats" style="margin-top:12px">
+        <div class="stat"><small>Required</small><strong id="rReq">0</strong></div>
+        <div class="stat"><small>Available</small><strong id="rAvail">0</strong></div>
+        <div class="stat"><small>Used</small><strong id="rPct">0%</strong></div>
+        <div class="stat"><small>Margin</small><strong id="rMargin">0</strong></div>
+      </div>
+      <div class="result pass" id="rStatus"></div>
+      <div class="meter"><div class="bar" id="rBar" style="width:0"></div></div>
+      <h3>Breakdown</h3>
+      <table><thead><tr><th>Item</th><th class="n">mL</th></tr></thead><tbody id="rRows"></tbody></table>
+      <div class="note" id="rNote"></div>
+    </div>
+  </div>
+</section>
+
+<!-- REFERENCE -->
+<section id="tab-ref" role="tabpanel" aria-labelledby="tabBtn-ref" class="hidden">
+  <div class="ref-grid">
+    <div>
+      <div class="card">
+        <h2>Table 22</h2>
+        <p class="muted small" style="margin-top:6px">Space per insulated conductor</p>
+        <table style="margin-top:8px"><thead><tr><th>Size</th><th class="n">mL</th><th class="n">in³</th></tr></thead><tbody id="t22body"></tbody></table>
+      </div>
+      <div class="card" style="margin-top:20px">
+        <h2>Rule 12-3034 at a glance</h2>
+        <ol class="small" style="padding-left:20px;margin:10px 0 0">
+          <li><b>(1)</b> Count each insulated conductor that enters or leaves and ends at a terminal or connector. A conductor running through uncut counts once. A conductor that starts and ends inside the box is not counted.</li>
+          <li style="margin-top:6px"><b>(2)</b> Table 23 limits, reduced by: one for each fixture stud or hickey, one for each pair of insulating-cap connectors, two for each flush device on a single strap.</li>
+          <li style="margin-top:6px"><b>(3)</b> A device more than 2.54 cm from strap to back uses extra space: 32 cm³ for each centimetre of its depth.</li>
+          <li style="margin-top:6px"><b>(4)</b> Boxes not in Table 23, or mixed wire sizes, use Table 22 volumes, with the same Subrule (2) allowances.</li>
+          <li style="margin-top:6px"><b>(5) and (6)</b> Usable space is the internal volume. Ganged sections and marked rings add their marked volumes.</li>
+        </ol>
+        <p class="legend-fine">This is a study summary, not the rule text. Your 2024 codebook and Appendix B decide.</p>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Table 23</h2>
+      <p class="muted small" style="margin-top:6px">Box volume and maximum number of insulated conductors of one size</p>
+      <div class="scroll"><table class="ref-t" style="margin-top:8px"><thead><tr><th>Box</th><th class="n">mL</th><th class="n">in³</th><th class="n">No. 14</th><th class="n">No. 12</th><th class="n">No. 10</th><th class="n">No. 8</th><th class="n">No. 6</th></tr></thead><tbody id="t23body"></tbody></table></div>
+      <p class="legend-fine">Maximums here are the box volume divided by the Table 22 space for each size, rounded down. That matches the printed Table 23 rows I could cross-check. If a row in your 2024 book differs, your book wins.</p>
+    </div>
+  </div>
+</section>
+</main>
+<script>
+'use strict';
+/* =====================================================================
+   DATA: Table 22 and Table 23
+   Edit the BOXES list if a row differs from your printed 2024 codebook.
+   ===================================================================== */
+const SIZES=[14,12,10,8,6];
+const T22={14:24.6,12:28.7,10:36.9,8:45.1,6:73.7};          // mL per insulated conductor
+const T22IN={14:1.5,12:1.75,10:2.25,8:2.75,6:4.5};          // in3 per insulated conductor
+const GROUPS=[['junction','Junction and ceiling boxes'],['device','Device boxes'],['masonry','Masonry boxes'],['cast','Cast FS and FD boxes']];
+function mk(id,group,name,in3,ml,kind,o){return Object.assign({id,group,name,in3,ml,kind,gangs:1},o||{});}
+const BOXES=[
+  mk('r4x05','junction','4 × ½ in. round',5,81,'round'),
+  mk('o4x15','junction','4 × 1½ in. octagonal',15,245,'oct'),
+  mk('o4x218','junction','4 × 2⅛ in. octagonal',21,344,'oct'),
+  mk('s4x15','junction','4 × 1½ in. square',21,344,'sq'),
+  mk('s4x218','junction','4 × 2⅛ in. square',30,491,'sq'),
+  mk('s411x15','junction','4-11/16 × 1½ in. square',30,491,'sq2'),
+  mk('s411x218','junction','4-11/16 × 2⅛ in. square',42,688,'sq2'),
+  mk('d3x2x15','device','3 × 2 × 1½ in. device',8,131,'dev',{wIn:2,hIn:3}),
+  mk('d3x2x2','device','3 × 2 × 2 in. device',10,163,'dev',{wIn:2,hIn:3}),
+  mk('d3x2x225','device','3 × 2 × 2¼ in. device',10,163,'dev',{wIn:2,hIn:3}),
+  mk('d3x2x25','device','3 × 2 × 2½ in. device',12.5,204,'dev',{wIn:2,hIn:3}),
+  mk('d3x2x3','device','3 × 2 × 3 in. device',15,245,'dev',{wIn:2,hIn:3}),
+  mk('d4x2x15','device','4 × 2 × 1½ in. device',9,147,'dev',{wIn:2,hIn:4}),
+  mk('d4x218x178','device','4 × 2⅛ × 1⅞ in. device',14,229,'dev',{wIn:2.125,hIn:4}),
+  mk('d4x238x178','device','4 × 2⅜ × 1⅞ in. device',16,262,'dev',{wIn:2.375,hIn:4}),
+  mk('m375x2x25','masonry','3¾ × 2 × 2½ in. masonry',14,229,'mas',{wIn:2,hIn:3.75}),
+  mk('m375x2x35','masonry','3¾ × 2 × 3½ in. masonry',21,344,'mas',{wIn:2,hIn:3.75}),
+  mk('m4x214x238','masonry','4 × 2¼ × 2⅜ in. masonry',20.25,331,'mas',{wIn:2.25,hIn:4}),
+  mk('m4x214x338','masonry','4 × 2¼ × 3⅜ in. masonry',22.25,364,'mas',{wIn:2.25,hIn:4}),
+  mk('fs1','cast','FS 1 gang',14,229,'cast',{cast:true,gangs:1}),
+  mk('fs1t','cast','FS 1 gang tandem',34,557,'cast',{cast:true,gangs:1,tandem:true}),
+  mk('fs2','cast','FS 2 gang',26,426,'cast',{cast:true,gangs:2}),
+  mk('fs3','cast','FS 3 gang',41,671,'cast',{cast:true,gangs:3}),
+  mk('fs4','cast','FS 4 gang',56,917,'cast',{cast:true,gangs:4}),
+  mk('fd1','cast','FD 1 gang',22.5,368,'cast',{cast:true,gangs:1}),
+  mk('fd2','cast','FD 2 gang',41,671,'cast',{cast:true,gangs:2}),
+  mk('fd3','cast','FD 3 gang',60,983,'cast',{cast:true,gangs:3}),
+  mk('fd4','cast','FD 4 gang',85,1392,'cast',{cast:true,gangs:4})
+];
+
+/* ===== helpers ===== */
+const rand=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const r1=n=>Math.round(n*10)/10;
+const mlTxt=n=>r1(n).toFixed(1);
+const boxOf=id=>BOXES.find(b=>b.id===id);
+// Table 23 maximums are worked out from the box volume. To use the exact figure from your codebook for a box,
+// add counts to its mk(...) line, for example: {counts:{14:10,12:8,10:6,8:5,6:3}}
+const maxCount=(box,awg)=>box.counts&&box.counts[awg]!=null?box.counts[awg]:Math.floor(box.in3/T22IN[awg]+1e-9);
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const plural=(n,a,b)=>n===1?a:(b||a+'s');
+const LETTERS='ABCDEFGHIJ';
+
+/* =====================================================================
+   RULE LOGIC
+   ===================================================================== */
+function derive(s){
+  const L=s.L,count={14:0,12:0,10:0,8:0,6:0};
+  const groups={black:[],white:[],red:[],bond:[]};
+  let bare=0,green=0;
+  s.entries.forEach((e,i)=>{
+    count[e.awg]+=2;
+    groups.black.push({awg:e.awg,src:'entry',i,kind:'ins'});
+    groups.white.push({awg:e.awg,src:'entry',i,kind:'ins'});
+    if(e.cond===3){count[e.awg]+=1;groups.red.push({awg:e.awg,src:'entry',i,kind:'ins'});}
+    if(e.bond==='green'){count[e.awg]+=1;green++;groups.bond.push({awg:e.awg,src:'entry',i,kind:'ins'});}
+    else{bare++;groups.bond.push({awg:e.awg,src:'entry',i,kind:'bare'});}
+  });
+  if(s.throughs)count[s.throughs.awg]+=s.throughs.n;
+  for(let k=0;k<s.devices;k++){
+    groups.black.push({awg:L,src:'dev',i:k,kind:'ins'});
+    groups.white.push({awg:L,src:'dev',i:k,kind:'ins'});
+    groups.bond.push({awg:L,src:'dev',i:k,kind:'bare'});
+  }
+  groups.bond.push({awg:L,src:'box',i:0,kind:'bare'});
+  const caps=[],links=[];
+  ['black','white','red','bond'].forEach(g=>{
+    const W=groups[g];if(!W.length)return;
+    const fits=n=>n===1?W.length<=6:Math.ceil(W.length/n)+(n>2?2:1)<=6;
+    let k=1;while(!fits(k)&&k<8)k++;
+    const lists=Array.from({length:k},()=>[]);
+    W.slice().sort((a,b)=>a.awg-b.awg).forEach((w,i)=>lists[i%k].push(w));
+    const base=caps.length;
+    lists.forEach(wires=>caps.push({group:g,wires}));
+    for(let i=0;i<k-1;i++)links.push({group:g,a:base+i,b:base+i+1});
+  });
+  const insulated=SIZES.reduce((t,a)=>t+count[a],0);
+  const linkIns=links.filter(l=>l.group!=='bond').length;
+  const linkBare=links.length-linkIns;
+  return{count,groups,caps,links,capsTotal:caps.length,pairs:Math.floor(caps.length/2),bare,green,insulated,
+    pigtails:s.devices*2+linkIns,bareJumpers:s.devices+1+linkBare};
+}
+function deepVol(s){return s.deep?s.devices*32*s.depth:0;}
+
+function calcVol(s,d){
+  const L=s.L,rows=[];
+  SIZES.forEach(a=>{
+    if(!d.count[a])return;
+    const parts=[];
+    s.entries.forEach((e,i)=>{if(e.awg===a){const n=2+(e.cond===3?1:0)+(e.bond==='green'?1:0);parts.push(`${LETTERS[i]} ${n}`);}});
+    if(s.throughs&&s.throughs.awg===a)parts.push(`through ${s.throughs.n}`);
+    rows.push({k:'cond',awg:a,label:`No. ${a} AWG insulated conductors`,calc:`${parts.join(' + ')} = ${d.count[a]} × ${T22[a]} mL`,value:d.count[a]*T22[a]});
+  });
+  rows.push({k:'caps',label:'Connectors, (2)(b)',calc:`${d.capsTotal} connectors = ${d.pairs} ${plural(d.pairs,'pair')} × ${T22[L]} mL (No. ${L})`,value:d.pairs*T22[L]});
+  if(s.studs)rows.push({k:'stud',label:`${s.studKind==='hickey'?'Hickey':'Fixture stud'}, (2)(a)`,calc:`${s.studs} × ${T22[L]} mL (No. ${L})`,value:s.studs*T22[L]});
+  if(s.devices)rows.push({k:'dev',label:'Flush devices, (2)(c)',calc:`${s.devices} ${plural(s.devices,'device')} × 2 conductors × ${T22[L]} mL (No. ${L})`,value:s.devices*2*T22[L]});
+  if(s.deep)rows.push({k:'deep',label:'Deep device space, (3)',calc:`${s.devices} ${plural(s.devices,'device')} × 32 cm³ × ${s.depth} cm`,value:deepVol(s)});
+  const total=r1(rows.reduce((t,x)=>t+x.value,0));
+  return{mode:'vol',rows,total};
+}
+function calcCount(s,d){
+  const ded={stud:s.studs,pairs:d.pairs,dev:2*s.devices};
+  return{mode:'count',ded,counted:d.insulated,need:d.insulated+ded.stud+ded.pairs+ded.dev};
+}
+const evaluate=s=>{const d=derive(s);return s.method==='count'?calcCount(s,d):calcVol(s,d);};
+
+/* =====================================================================
+   BOX CHOICES: the student picks the smallest box that is big enough
+   ===================================================================== */
+function familyOf(s){
+  const box=boxOf(s.boxId);
+  let f=BOXES.filter(b=>b.group===box.group);
+  if(box.cast){const n=Math.max(1,s.devices);f=f.filter(b=>b.gangs>=n&&(n<2||!b.tandem));}
+  return f;
+}
+const fitsBox=(s,ev,b)=>s.method==='count'?ev.need<=maxCount(b,s.L):ev.total<=b.ml+1e-9;
+function plan(s,ev){
+  const fam=familyOf(s),byMl=new Map();
+  fam.forEach(b=>{if(!byMl.has(b.ml))byMl.set(b.ml,[]);byMl.get(b.ml).push(b);});
+  const vols=[...byMl.keys()].sort((a,b)=>a-b);
+  const ansV=vols.find(v=>byMl.get(v).every(b=>fitsBox(s,ev,b)));
+  if(ansV===undefined)return null;
+  const ai=vols.indexOf(ansV),n=Math.min(5,vols.length);
+  const lo=Math.max(0,ai-(n-1)),hi=Math.min(ai,vols.length-n),start=rand(lo,hi);
+  const choiceIds=vols.slice(start,start+n).map(v=>pick(byMl.get(v)).id);
+  return{vols,ansV,ai,choiceIds,ansId:choiceIds[ai-start]};
+}
+
+/* =====================================================================
+   QUESTION GENERATOR
+   ===================================================================== */
+let qSerial=0,bag=[];
+function nextBox(filter){
+  const pool=BOXES.filter(b=>filter==='all'||b.group===filter);
+  bag=bag.filter(id=>pool.some(b=>b.id===id));
+  if(!bag.length)bag=shuffle(pool.map(b=>b.id));
+  return boxOf(bag.pop());
+}
+function candidate(box,diff,method){
+  const cast=!!box.cast,devCapable=box.kind==='dev'||box.kind==='mas'||(cast&&!box.tandem),adv=diff==='advanced';
+  const s={seed:rand(1,2e9),diff,method,boxId:box.id,entries:[],throughs:null,studs:0,studKind:null,devices:0,devKind:null,depth:0,deep:false,mixed:false,L:14,S:null};
+  s.mixed=method==='vol'&&(diff==='mixed'||(adv&&Math.random()<.5));
+  if(diff!=='basic'&&devCapable&&!s.mixed)s.devices=(cast&&box.gangs>=2)?pick([1,2]):1;
+  if(box.kind==='oct'||box.kind==='round'){s.studs=1;s.studKind=Math.random()<.65?'stud':'hickey';}
+  s.deep=adv&&method==='vol'&&s.devices>0&&box.ml>=300;
+  if(s.devices){s.devKind=s.deep?pick(['gfci','gfci20']):pick(['duplex','duplex','duplex20','single','single20']);s.depth=s.deep?pick([2.8,3.2,3.6,4.0]):pick([1.9,2.0,2.2,2.4]);}
+  const sizes=s.mixed?[12,10,8,6]:SIZES;
+  const ok=sizes.filter(a=>{const e=box.ml/T22[a];return e>=3.5&&e<=24;});
+  if(box.ml>450&&ok.length>1)ok.sort((a,b)=>box.ml/T22[a]-box.ml/T22[b]),ok.length=Math.min(2,ok.length);
+  s.L=ok.length?pick(ok):sizes.reduce((b,a)=>Math.abs(box.ml/T22[a]-10)<Math.abs(box.ml/T22[b]-10)?a:b,sizes[0]);
+  if(s.devices)s.L=/20$/.test(s.devKind)?12:14; // a 15 A receptacle takes No. 14 AWG only, a 20 A receptacle No. 12 AWG only
+  if(s.mixed)s.S=SIZES[SIZES.indexOf(s.L)-1];
+  if(adv&&!s.devices&&Math.random()<.5)s.throughs={awg:s.L,n:pick([2,3])};
+  const big=box.ml>900?3:box.ml>450?1:0,rng=({basic:[2,3],standard:[2,3],mixed:[2,4],advanced:[3,4]}[diff]||[2,3]).slice();
+  if(box.ml<300)rng[0]=2;
+  const lo=rng[0],hi=Math.min(cast?6:4,rng[1]+big);
+  const minE=(s.devices&&!s.mixed)?1:lo,n=rand(Math.min(minE,hi),hi);
+  const three=!s.mixed&&diff!=='basic'&&n>=3&&Math.random()<.25;
+  for(let i=0;i<n;i++){
+    const conduit=cast||(adv&&Math.random()<.35);
+    s.entries.push({type:conduit?'conduit':'cable',awg:(s.mixed&&i>0&&Math.random()<.5)?s.S:s.L,cond:(three&&i>0)?3:2,bond:conduit?'green':'bare'});
+  }
+  if(s.mixed&&!s.entries.some(e=>e.awg===s.S))s.entries[n-1].awg=s.S;
+  return s;
+}
+function valid(s,d){
+  if(s.entries.length>8)return false;
+  if(s.throughs&&boxOf(s.boxId).cast&&s.entries.length>4)return false;
+  if(d.groups.black.length<2||d.groups.white.length<2)return false;
+  if(d.groups.red.length===1)return false;
+  if(d.capsTotal>14)return false;
+  return true;
+}
+function generate(diff,method,filter,depth){
+  depth=depth||0;
+  const box=nextBox(filter);
+  let best=null;
+  for(let t=0;t<500;t++){
+    const s=candidate(box,diff,method),d=derive(s);
+    if(!valid(s,d))continue;
+    const ev=method==='vol'?calcVol(s,d):calcCount(s,d);
+    const pl=plan(s,ev);
+    if(!pl)continue;
+    if(method==='vol'&&pl.vols.some(v=>Math.abs(ev.total-v)<3))continue; // no knife-edge answers
+    const ansBox=boxOf(pl.ansId),cap=method==='vol'?ansBox.ml:maxCount(ansBox,s.L);
+    const ratio=(method==='vol'?ev.total:ev.need)/cap,ti=pl.vols.indexOf(box.ml);
+    const score=Math.abs(pl.ai-(ti<0?pl.ai:ti))*.45+((ratio>=.6&&ratio<=.99)?0:.5)+(pl.ai===0&&pl.vols.length>1?.18:0)+(pl.ai===pl.vols.length-1&&pl.vols.length>1?.15:0);
+    if(!best||score<best.score)best={s,pl,score};
+    if(score<.01)break;
+  }
+  if(!best){
+    if(method==='count')return generate(diff,'vol',filter,depth+1);
+    if(depth<4)return generate(depth<2?diff:'basic','vol',filter,depth+1);
+    throw new Error('no question could be generated');
+  }
+  const s=best.s;
+  s.choiceIds=best.pl.choiceIds;s.ansId=best.pl.ansId;s.ansMl=best.pl.ansV;s.id=++qSerial;
+  return s;
+}
+
+/* =====================================================================
+   QUESTION TEXT
+   ===================================================================== */
+const DEVNAME={duplex:'15 A duplex receptacle',duplex20:'20 A duplex receptacle',single:'15 A single receptacle',single20:'20 A single receptacle',gfci:'15 A GFCI receptacle',gfci20:'20 A GFCI receptacle'};
+const devName=s=>DEVNAME[s.devKind]||'duplex receptacle';
+function entryRole(i){return i===0?'Supply':'Load';}
+function describe(s){
+  const d=derive(s),L=s.L,items=[];
+  s.entries.forEach((e,i)=>{
+    const col=e.cond===3?'black, white and red':'black and white';
+    let txt;
+    if(e.type==='cable'){
+      txt=`<b>${entryRole(i)} cable</b>, ${e.awg}/${e.cond} NMD90. ${col[0].toUpperCase()+col.slice(1)} insulated conductors and a bare bonding conductor. The jacket ends at the box clamp.`;
+    }else{
+      txt=`<b>${entryRole(i)} conduit</b>, No. ${e.awg} AWG RW90 in the hub. ${col[0].toUpperCase()+col.slice(1)} conductors and a green <u>insulated</u> bonding conductor.`;
+    }
+    items.push({tag:LETTERS[i],html:txt});
+  });
+  if(s.throughs){
+    const cols=['black','white','red'].slice(0,s.throughs.n).join(', ');
+    items.push({tag:LETTERS[s.entries.length],html:`<b>Through run</b>, ${s.throughs.n} No. ${s.throughs.awg} AWG RW90 conductors (${cols}) pass straight through in conduit. They are not cut, spliced or terminated here.`});
+  }
+  const present=['black','white'].concat(d.groups.red.length?['red']:[]).concat(['bonding']);
+  items.push({tag:'•',html:`<b>${d.capsTotal} wire connectors</b> with insulating caps join the ${present.slice(0,-1).join(', ')} and bonding conductors. Every connector holds at least one No. ${L} AWG wire.`});
+  {const bits=[];if(d.pigtails)bits.push(`${d.pigtails} insulated ${plural(d.pigtails,'pigtail')}${s.devices?' (on each device, white to the silver screw and black to the brass screw)':''}`);bits.push(`${d.bareJumpers} bare bonding ${plural(d.bareJumpers,'jumper')}`);
+  items.push({tag:'•',html:`<b>Inside the box only</b>: ${bits.join(' and ')}. ${d.pigtails+d.bareJumpers===1?'Both ends stay':'Both ends of each stay'} in the box.`});}
+  if(s.studs)items.push({tag:'•',html:s.studKind==='hickey'?`<b>1 hickey</b> (threaded fitting) mounted in the box to carry the luminaire.`:`<b>1 fixture stud</b> mounted in the box to carry the luminaire.`});
+  if(s.devices){
+    const per=boxOf(s.boxId).cast&&s.devices>1?`, one in each gang`:'';
+    items.push({tag:'•',html:`<b>${s.devices} ${devName(s)}${s.devices>1?'s':''}</b>, each flush-mounted on its own single strap${per}. Depth from strap to back of device: <b>${s.depth} cm</b>.`});
+  }
+  return items;
+}
+function askText(s){
+  return s.method==='count'
+    ?`Use Rule 12-3034 and Table 23. Count the insulated conductors, add the Subrule (2) reductions to get the total to fit, then choose the smallest box that can hold that many No. ${s.L} AWG conductors.`
+    :'Use Rule 12-3034 and Table 22. Calculate the usable space required, then choose the smallest box that has enough space.';
+}
+function leadText(s){
+  const mix=s.mixed?` The conductors are a mix of No. ${s.L} and No. ${s.S} AWG, so Table 22 applies.`:'';
+  return s.method==='count'
+    ?`Choose the box for the contents below. All insulated conductors are No. ${s.L} AWG. Nothing is in the box except the items listed.`
+    :`Choose the box for the contents below.${mix} Nothing is in the box except the items listed.`;
+}
+function figTitleText(s){return(GROUPS.find(g=>g[0]===boxOf(s.boxId).group)||[0,'Boxes'])[1];}
+
+/* =====================================================================
+   GRADING, HINTS AND WORKED SOLUTION
+   ===================================================================== */
+const near=(a,b,t)=>Math.abs(a-b)<=(t||0.15);
+function altsVol(s,d,c){
+  const L=s.L,v=T22,a=[];
+  const base=c.total;
+  const add=(val,msg)=>{const t=r1(val);if(!near(t,base))a.push({value:t,msg});};
+  const bareEntries=s.entries.filter(e=>e.bond==='bare').reduce((t,e)=>t+v[e.awg],0);
+  add(base+bareEntries,'It looks like you counted the bare bonding conductors. Only insulated conductors count.');
+  add(base+d.pigtails*v[L],'It looks like you counted the pigtails. A conductor that starts and ends inside the box is not counted, (1)(c).');
+  add(base-d.pairs*v[L]+d.capsTotal*v[L],'Check the connectors. The rule gives one allowance for every pair of connectors, not one for each.');
+  add(base-d.pairs*v[L],'Check the connectors. Pairs of insulating-cap connectors need an allowance, (2)(b).');
+  if(s.studs)add(base-s.studs*v[L],'Check the fixture stud or hickey. It takes an allowance, (2)(a).');
+  if(s.devices){
+    add(base-s.devices*2*v[L],'Check the device. A flush device on a single strap takes two conductor allowances, (2)(c).');
+    add(base-s.devices*v[L],'A device takes two conductor allowances, not one, (2)(c).');
+  }
+  if(s.deep){
+    add(base-deepVol(s),'Check the device depth. Over 2.54 cm, Subrule (3) adds space for the depth.');
+    add(base-s.devices*2*v[L],'Subrule (3) adds space for a deep device, but the two-conductor allowance in (2)(c) still applies too.');
+  }
+  if(!s.deep&&s.devices)add(base+s.devices*32*s.depth,'Subrule (3) only applies to a device deeper than 2.54 cm. Check the depth given.');
+  if(s.throughs)add(base+s.throughs.n*v[s.throughs.awg],'A conductor running through uncut counts once, not twice, (1)(a).');
+  if(d.green)add(base-s.entries.filter(e=>e.bond==='green').reduce((t,e)=>t+v[e.awg],0),'An insulated bonding conductor is still an insulated conductor, so it counts.');
+  if(s.mixed){
+    add(base-SIZES.reduce((t,x)=>t+d.count[x]*v[x],0)+d.insulated*v[L],'With mixed sizes, use each conductor\'s own Table 22 value.');
+    add(base-d.pairs*v[L]+d.pairs*v[s.S],'For connectors, use the largest wire size under them, (2)(b).');
+  }
+  return a;
+}
+function boxHint(s,ev,id){
+  const b=boxOf(id);
+  if(!fitsBox(s,ev,b))return s.method==='count'
+    ?'The box you chose is too small. Its Table 23 limit is lower than the number of conductors to fit.'
+    :'The box you chose is too small. Its usable volume is less than the space these conductors need.';
+  return 'The box you chose has enough room, but a smaller box in the list also has enough room. Choose the smallest box that is big enough.';
+}
+function gradeVol(s,ans){
+  const d=derive(s),c=calcVol(s,d);
+  const okA=near(ans.a,c.total),okC=boxOf(ans.c).ml===s.ansMl;
+  const hints=[];
+  if(!okA){
+    const alt=altsVol(s,d,c).find(x=>near(ans.a,x.value));
+    if(alt)hints.push(alt.msg);
+    else{
+      hints.push(ans.a>c.total?'Your total is higher than the correct requirement.':'Your total is lower than the correct requirement.');
+      hints.push('Go back through Rule 12-3034 Subrules (1) to (3): which conductors count, how connectors pair up, and what the device and stud add.');
+    }
+  }
+  if(!okC)hints.push(okA?'Your total is right. '+boxHint(s,c,ans.c):boxHint(s,c,ans.c));
+  return{ok:{a:okA,c:okC},all:okA&&okC,hints,calc:c};
+}
+function gradeCount(s,ans){
+  const d=derive(s),c=calcCount(s,d),hints=[];
+  const okA=ans.a===c.counted,okB=ans.b===c.need,okC=boxOf(ans.c).ml===s.ansMl;
+  if(!okA){
+    const alts=[];
+    if(d.bare)alts.push([c.counted+d.bare,'It looks like you counted the bare bonding conductors. Only insulated conductors count.']);
+    alts.push([c.counted+d.pigtails,'It looks like you counted the pigtails. A conductor that starts and ends inside the box is not counted, (1)(c).']);
+    if(s.throughs)alts.push([c.counted+s.throughs.n,'A conductor running through uncut counts once, not twice, (1)(a).']);
+    if(d.green)alts.push([c.counted-d.green,'An insulated bonding conductor is still an insulated conductor, so it counts.']);
+    const m=alts.find(x=>x[0]===ans.a);
+    hints.push(m?m[1]:(ans.a>c.counted?'You counted more insulated conductors than the box actually has.':'You counted fewer insulated conductors than the box actually has.'));
+  }
+  if(!okB){
+    const dsum=c.ded.stud+c.ded.pairs+c.ded.dev;
+    if(!okA&&ans.b===ans.a+dsum){
+      hints.push('Your reductions are right. Your total is off only because the conductor count is off.');
+    }else{
+      const alts=[
+        [c.counted+c.ded.stud+d.capsTotal+c.ded.dev,'Check the connectors. The reduction is one for every pair of connectors, not one for each.'],
+        [c.counted+c.ded.stud+c.ded.dev,'Check the connectors. Each pair of insulating-cap connectors counts as one more conductor, (2)(b).'],
+        [c.counted+c.ded.pairs+c.ded.dev,'Check the fixture stud or hickey. It counts as one more conductor, (2)(a).'],
+        [c.counted+c.ded.stud+c.ded.pairs+s.devices,'A flush device on a single strap counts as two more conductors, (2)(c).'],
+        [c.counted+c.ded.stud+c.ded.pairs,'Check the device. A flush device on a single strap counts as two more conductors, (2)(c).'],
+        [c.counted,'Add the Subrule (2) reductions to the conductors you counted: studs, pairs of connectors and devices.']
+      ].filter(x=>x[0]!==c.need);
+      const m=alts.find(x=>x[0]===ans.b);
+      hints.push(m?m[1]:'Add one for each fixture stud or hickey, one for each pair of connectors and two for each device to the conductors counted.');
+    }
+  }
+  if(!okC)hints.push((okA&&okB?'Your numbers are right. ':'')+boxHint(s,c,ans.c));
+  return{ok:{a:okA,b:okB,c:okC},all:okA&&okB&&okC,hints,calc:c};
+}
+const grade=(s,ans)=>s.method==='count'?gradeCount(s,ans):gradeVol(s,ans);
+
+function choicesTable(s,ev){
+  const count=s.method==='count';
+  let h=`<h3>The choices</h3><div class="scroll"><table><thead><tr><th>Box</th><th class="n">${count?`Table 23 maximum, No. ${s.L}`:'Usable volume, mL'}</th><th>Result</th></tr></thead><tbody>`;
+  s.choiceIds.forEach(id=>{
+    const b=boxOf(id),fit=fitsBox(s,ev,b),best=b.ml===s.ansMl;
+    const res=!fit?['res-bad','Too small']:best?['res-ok','Smallest that is big enough']:['res-mid','Big enough, but not the smallest'];
+    h+=`<tr${best?' class="hit"':''}><td>${esc(b.name)}</td><td class="n">${count?maxCount(b,s.L):b.ml}</td><td><b class="${res[0]}">${res[1]}</b></td></tr>`;
+  });
+  h+='</tbody></table></div>';
+  if(count)h+='<p class="small muted" style="margin-top:8px">Table 23 maximums here are worked out from each box volume. If your codebook shows a different number for a box, follow your codebook.</p>';
+  return h;
+}
+function solutionHTML(s){
+  const d=derive(s),L=s.L;
+  let h='';
+  const excl=[];
+  if(d.bare)excl.push(`${d.bare} bare bonding ${plural(d.bare,'conductor')} in the cables`);
+  excl.push(`${d.pigtails} insulated ${plural(d.pigtails,'pigtail')} and ${d.bareJumpers} bare ${plural(d.bareJumpers,'jumper')} that stay inside the box`);
+  const exclHTML=`<div class="excl"><b>Not counted:</b> ${excl.join(' and ')}. Rule 12-3034(1)(c) leaves out conductors that never leave the box, and only insulated conductors count.</div>`;
+  const ans=boxOf(s.ansId),ties=BOXES.filter(b=>b.ml===s.ansMl&&familyOf(s).includes(b)&&b.id!==ans.id);
+  const tieTxt=ties.length?` (Any other box in the list with ${s.ansMl} mL works equally well.)`:'';
+  if(s.method==='vol'){
+    const c=calcVol(s,d);
+    h+='<h3>Worked solution</h3><div class="scroll"><table><thead><tr><th>Item</th><th>Working</th><th class="n">mL</th></tr></thead><tbody>';
+    c.rows.forEach(r=>{h+=`<tr><td>${r.label}</td><td>${r.calc}</td><td class="n">${mlTxt(r.value)}</td></tr>`;});
+    h+=`<tr class="total"><td colspan="2">Required usable space</td><td class="n">${mlTxt(c.total)}</td></tr></tbody></table></div>`;
+    h+=exclHTML;
+    h+=`<div class="verdict-line ok">${mlTxt(c.total)} mL is required. The smallest box in the list with enough space is the ${esc(ans.name)}, ${ans.ml} mL.${tieTxt}</div>`;
+    h+=choicesTable(s,c);
+    const chips=['(1) count insulated conductors','(2)(b) connector pairs'];
+    if(s.studs)chips.push('(2)(a) stud or hickey');
+    if(s.devices)chips.push('(2)(c) devices');
+    if(s.deep)chips.push('(3) deep device');
+    chips.push('(4) Table 22 values');
+    h+=`<div class="rulechips">${chips.map(x=>`<span class="chip">${x}</span>`).join('')}</div>`;
+  }else{
+    const c=calcCount(s,d);
+    const parts=s.entries.map((e,i)=>`${LETTERS[i]} ${2+(e.cond===3?1:0)+(e.bond==='green'?1:0)}`);
+    if(s.throughs)parts.push(`through ${s.throughs.n}`);
+    h+='<h3>Worked solution</h3><div class="scroll"><table><thead><tr><th>Step</th><th>Working</th><th class="n">Conductors</th></tr></thead><tbody>';
+    h+=`<tr><td>Insulated conductors counted</td><td>${parts.join(' + ')}</td><td class="n">${c.counted}</td></tr>`;
+    if(s.studs)h+=`<tr><td>${s.studKind==='hickey'?'Hickey':'Fixture stud'}, (2)(a)</td><td>${s.studs} × 1</td><td class="n">+${c.ded.stud}</td></tr>`;
+    h+=`<tr><td>Connectors, (2)(b)</td><td>${d.capsTotal} connectors = ${d.pairs} ${plural(d.pairs,'pair')}</td><td class="n">+${c.ded.pairs}</td></tr>`;
+    if(s.devices)h+=`<tr><td>Devices, (2)(c)</td><td>${s.devices} × 2</td><td class="n">+${c.ded.dev}</td></tr>`;
+    h+=`<tr class="total"><td colspan="2">Total to fit</td><td class="n">${c.need}</td></tr></tbody></table></div>`;
+    h+=exclHTML;
+    h+=`<div class="verdict-line ok">${c.need} No. ${L} AWG conductors to fit. The smallest box in the list that holds at least ${c.need} is the ${esc(ans.name)}, which holds ${maxCount(ans,L)}.${tieTxt}</div>`;
+    h+=choicesTable(s,c);
+    h+=`<div class="rulechips"><span class="chip">(1) count</span><span class="chip">(2) reductions</span><span class="chip">Table 23 maximum</span></div>`;
+  }
+  return h;
+}
+
+/* =====================================================================
+   ILLUSTRATION ENGINE
+   Top-down view into the open box. Devices are shown pulled out in
+   front of the box, wired by their pigtails.
+   ===================================================================== */
+const SVG_W=900;
+const WPX={14:9,12:10,10:11.5,8:13.5,6:16};
+const COL={
+  black:{base:'#24272c',edge:'#07080a',hl:'rgba(255,255,255,.34)'},
+  white:{base:'#f7f5ee',edge:'#a9a597',hl:'rgba(255,255,255,.95)'},
+  red:{base:'#c8312b',edge:'#640f0c',hl:'rgba(255,255,255,.4)'},
+  green:{base:'#2f9b54',edge:'#114b27',hl:'rgba(255,255,255,.42)'},
+  bare:{base:'#cf8a52',edge:'#7a4320',hl:'rgba(255,240,215,.75)'}
+};
+const JACKET={14:['#bfbaa9','#f2efe5','#ffffff'],12:['#a98a1c','#eec947','#fbe68f'],10:['#9b5218','#e8862f','#f7b872'],8:['#0f1012','#33363a','#5c6065'],6:['#0f1012','#33363a','#5c6065']};
+const f1=n=>Math.round(n*10)/10;
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+
+function lg(id,stops,x2,y2){
+  return `<linearGradient id="${id}" x1="0" y1="0" x2="${x2}" y2="${y2}">${stops.map(p=>`<stop offset="${p[0]}" stop-color="${p[1]}"/>`).join('')}</linearGradient>`;
+}
+function svgDefs(g,box){
+  let o='<defs>';
+  o+='<radialGradient id="gBg" cx=".5" cy=".4" r=".85"><stop offset="0" stop-color="#eff2f4"/><stop offset="1" stop-color="#bcc4cb"/></radialGradient>';
+  o+=lg('gWall',[[0,'#f4f7f8'],[.3,'#b3bcc4'],[.58,'#e6ebee'],[1,'#929da6']],1,1);
+  o+=lg('gCast',[[0,'#e2e6e9'],[.5,'#a8afb5'],[1,'#8c949b']],1,1);
+  o+='<radialGradient id="gFloor" cx=".45" cy=".38" r=".8"><stop offset="0" stop-color="#d6dce1"/><stop offset="1" stop-color="#97a2ab"/></radialGradient>';
+  o+='<radialGradient id="gFloorCast" cx=".45" cy=".38" r=".8"><stop offset="0" stop-color="#c9ced2"/><stop offset="1" stop-color="#8d959c"/></radialGradient>';
+  o+=lg('gSteelH',[[0,'#7d8993'],[.28,'#cfd6dc'],[.5,'#f2f5f7'],[.72,'#c3cbd2'],[1,'#707b85']],0,1);
+  o+=lg('gSteelV',[[0,'#7d8993'],[.28,'#cfd6dc'],[.5,'#f2f5f7'],[.72,'#c3cbd2'],[1,'#707b85']],1,0);
+  [14,12,10,8].forEach(a=>{
+    const j=JACKET[a],st=[[0,j[0]],[.26,j[1]],[.5,j[2]],[.74,j[1]],[1,j[0]]];
+    o+=lg('gJ'+a+'h',st,0,1)+lg('gJ'+a+'v',st,1,0);
+  });
+  o+=lg('gYoke',[[0,'#eef1f3'],[.5,'#aeb7be'],[1,'#d9dfe3']],1,0);
+  o+=lg('gIvory',[[0,'#fcf9ef'],[.55,'#efe9d7'],[1,'#d6cdb4']],1,1);
+  o+='<radialGradient id="gBrass" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#f8e39a"/><stop offset="1" stop-color="#94741e"/></radialGradient>';
+  o+='<radialGradient id="gSilver" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#868f97"/></radialGradient>';
+  o+='<radialGradient id="gGreenScrew" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#6fd18d"/><stop offset="1" stop-color="#1f7a3c"/></radialGradient>';
+  o+=lg('gCapY',[[0,'#fff3a8'],[.5,'#f2c614'],[1,'#a37900']],0,1);
+  o+=lg('gCapO',[[0,'#ffc886'],[.5,'#f08a1a'],[1,'#9d4a00']],0,1);
+  o+=lg('gCapR',[[0,'#ffa597'],[.5,'#d7301f'],[1,'#7a1209']],0,1);
+  o+='<filter id="fShadow" x="-15%" y="-15%" width="130%" height="130%"><feDropShadow dx="7" dy="11" stdDeviation="9" flood-color="#000" flood-opacity=".38"/></filter>';
+  o+='<filter id="fShadow2" x="-25%" y="-15%" width="150%" height="130%"><feDropShadow dx="4" dy="7" stdDeviation="5" flood-color="#000" flood-opacity=".35"/></filter>';
+  o+='<filter id="fInner" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB"><feOffset dx="7" dy="9"/><feGaussianBlur stdDeviation="8" result="ob"/><feComposite operator="out" in="SourceGraphic" in2="ob" result="inv"/><feFlood flood-color="#000" flood-opacity=".62" result="c"/><feComposite operator="in" in="c" in2="inv" result="sh"/><feComposite operator="over" in="sh" in2="SourceGraphic"/></filter>';
+  o+='<filter id="fNoise" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="7" result="t"/><feColorMatrix in="t" type="matrix" values="0 0 0 0 .12  0 0 0 0 .14  0 0 0 0 .16  1 0 0 0 -.38"/></filter>';
+  o+='<filter id="fBrush" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency=".006 .55" numOctaves="2" seed="3" result="t"/><feColorMatrix in="t" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  1.3 0 0 0 -.62"/></filter>';
+  o+=`<clipPath id="cpBox">${shapeEl(g,0,'')}</clipPath>`;
+  return o+'</defs>';
+}
+function shapeEl(g,inset,attrs){
+  const a=attrs||'';
+  if(g.shape==='circle')return `<circle cx="${g.cx}" cy="${g.cy}" r="${f1(g.w/2-inset)}" ${a}/>`;
+  if(g.shape==='oct'){
+    const R=(g.w/2-inset)/Math.cos(Math.PI/8),p=[];
+    for(let i=0;i<8;i++){const t=Math.PI/8+i*Math.PI/4;p.push(`${f1(g.cx+R*Math.cos(t))},${f1(g.cy+R*Math.sin(t))}`);}
+    return `<polygon points="${p.join(' ')}" stroke-linejoin="round" ${a}/>`;
+  }
+  return `<rect x="${f1(g.x0+inset)}" y="${f1(g.y0+inset)}" width="${f1(g.w-2*inset)}" height="${f1(g.h-2*inset)}" rx="${Math.max(2,f1(g.rx-inset*.6))}" ${a}/>`;
+}
+function geometry(box,nTop){
+  const P=105;let w,h,shape='rect',rx=18;
+  switch(box.kind){
+    case 'round':w=h=420;shape='circle';break;
+    case 'oct':w=h=420;shape='oct';break;
+    case 'sq':w=h=420;rx=26;break;
+    case 'sq2':w=h=492;rx=28;break;
+    case 'dev':case 'mas':w=Math.round(box.wIn*P);h=Math.round(box.hIn*P);rx=12;break;
+    default:w=Math.max(box.tandem?270:Math.round(190*box.gangs+22),(nTop||0)*105+70);h=box.tandem?440:330;rx=8;
+  }
+  return{w,h,shape,rx,kind:box.kind,cast:!!box.cast};
+}
+function makeSlots(n,box,hasDev,through){
+  let order;
+  if(box.cast)order=['top','top','left','right','top','top','top','top'];
+  else if(through)order=['top','top','top','top','top','top','top','top'];
+  else if(hasDev)order=['top','left','right','top','left','right','top','left'];
+  else order=['left','right','top','left','right','top','left','right'];
+  const sides=order.slice(0,n),cnt={},seen={};
+  sides.forEach(sd=>{cnt[sd]=(cnt[sd]||0)+1;});
+  return sides.map(sd=>{seen[sd]=(seen[sd]||0)+1;return{side:sd,t:seen[sd]/(cnt[sd]+1)};});
+}
+function anchorAt(g,side,t){
+  const m=11,rect=g.shape==='rect';
+  const sx=rect?(g.cast?.9:.7):.36,sy=rect?.62:.36;
+  if(side==='left')return{x:g.x0+m,y:g.cy+(t-.5)*g.h*sy,dx:1,dy:0};
+  if(side==='right')return{x:g.x1-m,y:g.cy+(t-.5)*g.h*sy,dx:-1,dy:0};
+  if(side==='top')return{x:g.cx+(t-.5)*g.w*sx,y:g.y0+m,dx:0,dy:1};
+  return{x:g.cx+(t-.5)*g.w*sx,y:g.y1-m,dx:0,dy:-1};
+}
+function bossesOf(g){
+  switch(g.kind){
+    case 'round':case 'oct':return[[g.cx,g.y0+40],[g.cx,g.y1-40]];
+    case 'sq':case 'sq2':return[[g.x0+42,g.y0+42],[g.x1-42,g.y0+42],[g.x0+42,g.y1-42],[g.x1-42,g.y1-42]];
+    case 'dev':case 'mas':return[[g.cx,g.y0+32],[g.cx,g.y1-32]];
+    default:return[[g.x0+34,g.y0+28],[g.x1-34,g.y0+28],[g.x0+34,g.y1-28],[g.x1-34,g.y1-28]];
+  }
+}
+function wirePath(d,kind,awg){
+  const c=COL[kind],w=(kind==='bare'?.6:1)*WPX[awg];
+  return `<g fill="none" stroke-linecap="round">`
+   +`<path d="${d}" stroke="#000" stroke-opacity=".07" stroke-width="${f1(w+10)}" transform="translate(2 4)"/>`
+   +`<path d="${d}" stroke="#000" stroke-opacity=".12" stroke-width="${f1(w+5)}" transform="translate(2 4)"/>`
+   +`<path d="${d}" stroke="${c.edge}" stroke-width="${f1(w+1.8)}"/>`
+   +`<path d="${d}" stroke="${c.base}" stroke-width="${f1(w)}"/>`
+   +`<path d="${d}" stroke="${c.hl}" stroke-width="${f1(Math.max(1.3,w*.26))}" transform="translate(${f1(-w*.17)} ${f1(-w*.2)})"/>`
+   +`</g>`;
+}
+function marette(x,y,u,sc,awg){
+  const ang=Math.atan2(u.y,u.x)*180/Math.PI,gr=awg>=14?'gCapY':(awg>=10?'gCapO':'gCapR');
+  const dk=awg>=14?'#8a6600':(awg>=10?'#873f00':'#650d06');
+  return `<g transform="translate(${f1(x)} ${f1(y)}) rotate(${f1(ang)}) scale(${sc})">`
+   +`<ellipse cx="22" cy="6" rx="26" ry="17" fill="#000" opacity=".16"/>`
+   +`<path d="M2 -17 L11 -25 L20 -17 Z M2 17 L11 25 L20 17 Z" fill="url(#${gr})" stroke="${dk}" stroke-width="1.2"/>`
+   +`<path d="M0 -15 L28 -11 Q43 -10 43 0 Q43 10 28 11 L0 15 Z" fill="url(#${gr})" stroke="${dk}" stroke-width="1.4"/>`
+   +`<path d="M8 -14 V14 M15 -13.5 V13.5 M22 -12.5 V12.5 M29 -11.5 V11.5" stroke="#000" stroke-opacity=".2" stroke-width="1.6"/>`
+   +`<path d="M3 -9 L36 -6.5" stroke="#fff" stroke-opacity=".6" stroke-width="3" stroke-linecap="round"/>`
+   +`</g>`;
+}
+function axisRect(a,out,Lin,half){
+  if(a.dx===1)return{x:a.x-out,y:a.y-half,w:out+Lin,h:2*half,h2:true};
+  if(a.dx===-1)return{x:a.x-Lin,y:a.y-half,w:out+Lin,h:2*half,h2:true};
+  if(a.dy===1)return{x:a.x-half,y:a.y-out,w:2*half,h:out+Lin,h2:false};
+  return{x:a.x-half,y:a.y-Lin,w:2*half,h:out+Lin,h2:false};
+}
+function deviceSVG(cx,top,kind,labels){
+  const cy=top+125,gfci=/^gfci/.test(kind),t20=/20$/.test(kind),single=/^single/.test(kind);
+  const hex=(x,y,r)=>{let p=[];for(let k=0;k<6;k++){const a=Math.PI/3*k+Math.PI/6;p.push(f1(x+r*Math.cos(a))+' '+f1(y+r*Math.sin(a)));}return p.join(' ');};
+  let o=`<g filter="url(#fShadow2)">`;
+  /* metal yoke with the two mounting ears */
+  o+=`<rect x="${cx-37}" y="${top}" width="74" height="250" rx="7" fill="url(#gYoke)" stroke="#5c6973" stroke-width="1.5"/>`;
+  [top+14,top+236].forEach((ey,k)=>{
+    [-25,25].forEach(sx=>{o+=`<rect x="${cx+sx-6}" y="${ey-4.5}" width="12" height="9" rx="4.5" fill="#cfd6db" stroke="#6b7782" stroke-width="1.2"/>`;});
+    {
+      o+=`<circle cx="${cx}" cy="${ey}" r="9" fill="url(#gSilver)" stroke="#4d565d" stroke-width="1.3"/><path d="M${cx-5} ${ey} h10" stroke="#3a4248" stroke-width="1.8"/>`;
+    }
+  });
+  /* white plastic body */
+  o+=`<rect x="${cx-48}" y="${top+34}" width="96" height="182" rx="9" fill="#f4f4ef" stroke="#a9a99f" stroke-width="1.6"/>`;
+  o+=`<rect x="${cx-43}" y="${top+39}" width="86" height="172" rx="6" fill="none" stroke="#fff" stroke-width="2"/><rect x="${cx-43}" y="${top+39}" width="86" height="172" rx="6" fill="none" stroke="#d6d6cd" stroke-width=".8" transform="translate(.7 .7)"/>`;
+  /* side terminals: silver on the left (neutral), brass on the right (hot) */
+  [[-1,'gSilver'],[1,'gBrass']].forEach(p=>{
+    [-38,38].forEach(dy=>{
+      const x=cx+p[0]*57,y=cy+dy;
+      o+=`<rect x="${x-7.5}" y="${y-11}" width="15" height="22" rx="3" fill="url(#${p[1]})" stroke="#4d565d" stroke-width="1.3"/>`;
+      for(let r=-6;r<=6;r+=4)o+=`<path d="M${x-7.5} ${y+r} h15" stroke="#3a4248" stroke-opacity=".55" stroke-width="1"/>`;
+    });
+  });
+  const outlet=oy=>{
+    let s=`<rect x="${cx-32}" y="${oy-31}" width="64" height="62" rx="8" fill="#f0f0ea" stroke="#c9c9bf" stroke-width="1.2"/>`;
+    s+=`<rect x="${cx-21}" y="${oy-24}" width="6" height="19" rx="1.5" fill="#26292c"/><rect x="${cx+14}" y="${oy-22}" width="5" height="15" rx="1.5" fill="#26292c"/>`;
+    if(t20)s+=`<rect x="${cx-21}" y="${oy-16}" width="13" height="5.5" rx="1.5" fill="#26292c"/>`;
+    s+=`<path d="M${cx-6} ${oy+22} v-6 a6 6 0 0 1 12 0 v6 z" fill="#26292c"/>`;
+    return s;
+  };
+  if(gfci){
+    o+=outlet(cy-58)+outlet(cy+58);
+    o+=`<rect x="${cx-20}" y="${cy-19}" width="40" height="16" rx="3" fill="#e4e4de" stroke="#8d8d84" stroke-width="1"/><rect x="${cx-20}" y="${cy+3}" width="40" height="16" rx="3" fill="#e4e4de" stroke="#8d8d84" stroke-width="1"/>`;
+    o+=`<text x="${cx}" y="${cy-7}" font-size="9" font-weight="700" text-anchor="middle" fill="#333" font-family="Arial,sans-serif">RESET</text><text x="${cx}" y="${cy+15}" font-size="9" font-weight="700" text-anchor="middle" fill="#333" font-family="Arial,sans-serif">TEST</text>`;
+    o+=`<circle cx="${cx-31}" cy="${cy}" r="2.2" fill="#2d3033"/>`;
+  }else{
+    if(single){
+      o+=`<circle cx="${cx}" cy="${cy}" r="35" fill="#f0f0ea" stroke="#c9c9bf" stroke-width="1.2"/><rect x="${cx-21}" y="${cy-26}" width="6" height="19" rx="1.5" fill="#26292c"/><rect x="${cx+14}" y="${cy-24}" width="5" height="15" rx="1.5" fill="#26292c"/>${t20?`<rect x="${cx-21}" y="${cy-18}" width="13" height="5.5" rx="1.5" fill="#26292c"/>`:''}<path d="M${cx-6} ${cy+25} v-6 a6 6 0 0 1 12 0 v6 z" fill="#26292c"/>`;
+    }else o+=outlet(cy-45)+outlet(cy+45);
+  }
+  /* green grounding screw on the body, lower left (the bonding conductor lands here, not on the strap) */
+  o+=`<rect x="${cx-65}" y="${cy+64}" width="17" height="24" rx="3" fill="#cfd6db" stroke="#6b7782" stroke-width="1.2"/><polygon points="${hex(cx-56.5,cy+76,9)}" fill="url(#gGreenScrew)" stroke="#14502a" stroke-width="1.4"/><path d="M${cx-61} ${cy+76} h9" stroke="#0e3a1e" stroke-width="2"/>`;
+  if(labels)o+=`<g font-family="Arial,sans-serif" font-size="12" font-weight="700" fill="#33424d"><text x="${cx-72}" y="${cy+4}" text-anchor="end">silver</text><text x="${cx+72}" y="${cy+4}">brass</text></g>`;
+  return o+'</g>';
+}
+function profileSVG(px,top,depth,gfci){
+  const K=22,bodyH=130,t=2.54;
+  let o=`<g font-family="Arial,sans-serif" font-size="12" fill="#2a3640">`;
+  o+=`<text x="${px}" y="${top-4}" font-weight="700">Side view</text>`;
+  o+=`<rect x="${px}" y="${top+10}" width="6" height="200" fill="#8c98a2" stroke="#53606a" stroke-width="1"/>`;
+  o+=`<rect x="${px+6}" y="${top+45}" width="${f1(depth*K)}" height="${bodyH}" rx="3" fill="${gfci?'#e8e8e2':'#f1f1ec'}" stroke="#8d8570" stroke-width="1.3"/>`;
+  o+=`<path d="M${f1(px+6+t*K)} ${top+22} V${top+200}" stroke="#b3261e" stroke-width="1.6" stroke-dasharray="5 4"/>`;
+  o+=`<text x="${f1(px+6+t*K)}" y="${top+17}" font-size="11" fill="#b3261e" text-anchor="middle">2.54 cm</text>`;
+  const dy=top+222;
+  o+=`<path d="M${px+6} ${dy} H${f1(px+6+depth*K)} M${px+6} ${dy-6} V${dy+6} M${f1(px+6+depth*K)} ${dy-6} V${dy+6}" stroke="#1d2a33" stroke-width="1.6" fill="none"/>`;
+  o+=`<text x="${f1(px+6+depth*K/2)}" y="${dy+22}" font-weight="700" text-anchor="middle">${depth} cm</text>`;
+  return o+'</g>';
+}
+function chipSVG(x,y,k){
+  if(k==='bare')return `<circle cx="${x}" cy="${y}" r="6.4" fill="none" stroke="#c9803f" stroke-width="2.8"/>`;
+  const c=COL[k];return `<circle cx="${x}" cy="${y}" r="6.9" fill="${c.base}" stroke="${k==='white'?'#8a8677':c.edge}" stroke-width="1.6"/>`;
+}
+function tagSVG(cx,cy,text,W,H,chips){
+  chips=chips||[];
+  const tw=text.length*9.6+16,cw=chips.length?chips.length*18+6:0,w=Math.max(54,tw+cw);
+  cx=Math.min(W-w/2-6,Math.max(w/2+6,cx));cy=Math.min(H-20,Math.max(20,cy));
+  const left=cx-w/2;
+  let o=`<g><rect x="${f1(left)}" y="${f1(cy-15)}" width="${f1(w)}" height="30" rx="6" fill="#fffef4" stroke="#6f6c5e" stroke-width="1.4"/>`
+   +`<text x="${f1(left+tw/2+1)}" y="${f1(cy+5.6)}" text-anchor="middle" font-family="Arial,sans-serif" font-size="16.5" font-weight="700" fill="#1d1d1d">${text}</text>`;
+  chips.forEach((k,i)=>{o+=chipSVG(f1(left+tw+11+i*18),cy,k);});
+  return o+'</g>';
+}
+
+function studSVG(cx,cy,kind){
+  if(kind==='hickey'){
+    let o=`<g filter="url(#fShadow2)"><rect x="${cx-58}" y="${cy-6}" width="116" height="12" rx="3" fill="url(#gSteelH)" stroke="#4a565f" stroke-width="1.2"/>`;
+    o+=`<circle cx="${cx-46}" cy="${cy}" r="3.4" fill="#59656f"/><circle cx="${cx+46}" cy="${cy}" r="3.4" fill="#59656f"/>`;
+    o+=`<rect x="${cx-30}" y="${cy-13}" width="60" height="26" rx="7" fill="url(#gSteelH)" stroke="#4a565f" stroke-width="1.5"/>`;
+    [-20,-12,-4,4,12,20].forEach(x=>{o+=`<path d="M${cx+x} ${cy-12} v24" stroke="#000" stroke-opacity=".3" stroke-width="1.6"/>`;});
+    return o+`<circle cx="${cx}" cy="${cy}" r="5" fill="#39434b"/></g>`;
+  }
+  const hex=[0,1,2,3,4,5].map(i=>{const t=Math.PI/6+i*Math.PI/3;return`${f1(cx+14*Math.cos(t))},${f1(cy+14*Math.sin(t))}`;}).join(' ');
+  return `<g filter="url(#fShadow2)"><circle cx="${cx}" cy="${cy}" r="23" fill="url(#gSilver)" stroke="#59656f" stroke-width="1.5"/><polygon points="${hex}" fill="url(#gSteelH)" stroke="#4a565f" stroke-width="1.4"/><circle cx="${cx}" cy="${cy}" r="6" fill="#39434b"/><circle cx="${cx-1.5}" cy="${cy-1.5}" r="2.2" fill="#8a97a1"/></g>`;
+}
+
+function drawScene(s){
+  const d=derive(s),box=boxOf(s.boxId),L=s.L;
+  const hasDev=s.devices>0,W=SVG_W;
+  const slots=makeSlots(s.entries.length,box,hasDev,!!s.throughs);
+  const geo=geometry(box,slots.filter(q=>q.side==='top').length);
+  const anyTop=slots.some(q=>q.side==='top'),anyBottom=slots.some(q=>q.side==='bottom');
+  const top=anyTop?150:90;
+  const g=Object.assign(geo,{cx:450,x0:450-geo.w/2,x1:450+geo.w/2,y0:top,y1:top+geo.h,cy:top+geo.h/2});
+  const devTop=g.y1+90;
+  const H=hasDev?Math.round(devTop+250+70):Math.round(g.y1+(anyBottom?150:90));
+  const small=g.w<260||g.h<260,sc=small?.78:1;
+  const o=[];
+  o.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Top-down view of a ${box.name} box with its cables, connectors${hasDev?' and device':''}">`);
+  o.push(svgDefs(g,box));
+  o.push(`<rect width="${W}" height="${H}" fill="url(#gBg)"/>`);
+
+  /* box body */
+  const wallG=g.cast?'gCast':'gWall',floorG=g.cast?'gFloorCast':'gFloor';
+  o.push(`<g filter="url(#fShadow)">${shapeEl(g,0,`fill="url(#${wallG})" stroke="#56626c" stroke-width="2"`)}</g>`);
+  if(g.kind==='dev'||g.kind==='mas'){
+    [[g.y0+14],[g.y1-30]].forEach(p=>{
+      o.push(`<rect x="${g.x0-20}" y="${p[0]}" width="22" height="16" rx="3" fill="url(#gWall)" stroke="#56626c" stroke-width="1.5"/><circle cx="${g.x0-9}" cy="${p[0]+8}" r="3.6" fill="#59656f"/>`);
+      o.push(`<rect x="${g.x1-2}" y="${p[0]}" width="22" height="16" rx="3" fill="url(#gWall)" stroke="#56626c" stroke-width="1.5"/><circle cx="${g.x1+9}" cy="${p[0]+8}" r="3.6" fill="#59656f"/>`);
+    });
+  }
+  o.push(shapeEl(g,5,'fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="2"'));
+  o.push(shapeEl(g,10,'fill="none" stroke="#000" stroke-opacity=".22" stroke-width="1.5"'));
+  o.push(shapeEl(g,24,`fill="url(#${floorG})" stroke="#68757f" stroke-width="1.5" filter="url(#fInner)"`));
+  o.push(`<rect x="${g.x0}" y="${g.y0}" width="${g.w}" height="${g.h}" fill="#000" filter="url(#fNoise)" clip-path="url(#cpBox)" opacity="${g.cast?.9:.55}"/>`);
+  o.push(`<rect x="${g.x0}" y="${g.y0}" width="${g.w}" height="${g.h}" fill="#fff" filter="url(#fBrush)" clip-path="url(#cpBox)" opacity="${g.cast?.12:.28}"/>`);
+
+  /* knockouts (skip any that an entry occupies) */
+  const entryAnchors=s.entries.map((e,i)=>anchorAt(g,slots[i].side,slots[i].t));
+  if(s.throughs){entryAnchors.push(anchorAt(g,'left',.5),anchorAt(g,'right',.5));}
+  const kos=[];
+  if(g.shape==='rect'){
+    [-.24,.24].forEach(k=>{
+      kos.push([g.x0+11,g.cy+k*g.h],[g.x1-11,g.cy+k*g.h]);
+      kos.push([g.cx+k*g.w*(g.cast?1.2:1),g.y0+11],[g.cx+k*g.w*(g.cast?1.2:1),g.y1-11]);
+    });
+  }else{
+    const rw=g.w/2-11;
+    for(let i=0;i<8;i++){const t=i*Math.PI/4;kos.push([g.cx+rw*Math.cos(t),g.cy+rw*Math.sin(t)]);}
+  }
+  kos.forEach(k=>{
+    if(entryAnchors.some(a=>Math.hypot(a.x-k[0],a.y-k[1])<34))return;
+    o.push(`<circle cx="${f1(k[0])}" cy="${f1(k[1])}" r="7.5" fill="#000" fill-opacity=".1" stroke="#5a6770" stroke-width="1.4"/><circle cx="${f1(k[0])}" cy="${f1(k[1])}" r="4.6" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1"/>`);
+  });
+
+  /* bosses and the bonding screw (last boss) */
+  const bs=bossesOf(g),scr=bs[bs.length-1],scrP={x:scr[0],y:scr[1]};
+  bs.forEach((p,i)=>{
+    o.push(`<circle cx="${p[0]}" cy="${p[1]}" r="12" fill="#aab4bc" stroke="#5e6b75" stroke-width="1.5"/><circle cx="${p[0]}" cy="${p[1]}" r="12" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="1" transform="translate(-1 -1)"/>`);
+    if(i<bs.length-1)o.push(`<circle cx="${p[0]}" cy="${p[1]}" r="5" fill="#3d474f"/><circle cx="${p[0]}" cy="${p[1]}" r="3" fill="#202529"/>`);
+    else o.push(`<circle cx="${p[0]}" cy="${p[1]}" r="8.6" fill="url(#gGreenScrew)" stroke="#14502a" stroke-width="1.3"/><path d="M${p[0]-5.5} ${p[1]} h11" stroke="#0e3a1e" stroke-width="2"/>`);
+  });
+
+  /* entries: cable clamps or conduit hubs */
+  const eg=s.entries.map((e,i)=>{
+    const a=entryAnchors[i];
+    const out=a.dx===1?a.x+40:a.dx===-1?(W-a.x)+40:a.dy===1?a.y+40:(H-a.y)+40;
+    const Lin=e.type==='cable'?Math.min(58,g.w*.22):34;
+    const J={x:a.x+a.dx*Lin,y:a.y+a.dy*Lin},perp={x:-a.dy,y:a.dx};
+    const conds=['black','white'].concat(e.cond===3?['red']:[]).concat([e.bond==='green'?'green':'bare']);
+    return{a,out,Lin,J,perp,conds,e,i};
+  });
+  const hw=(a,out,Lin,type,awg)=>{
+    let s2='';
+    const half=type==='cable'?14:17,r=axisRect(a,out,Lin,half);
+    const suf=r.h2?'h':'v';
+    const fill=type==='cable'?`url(#gJ${[14,12,10].includes(awg)?awg:8}${suf})`:`url(#gSteel${r.h2?'H':'V'})`;
+    s2+=`<rect x="${f1(r.x)}" y="${f1(r.y)}" width="${f1(r.w)}" height="${f1(r.h)}" rx="3" fill="#000" opacity=".1" transform="translate(5 8)"/>`;
+    s2+=`<rect x="${f1(r.x)}" y="${f1(r.y)}" width="${f1(r.w)}" height="${f1(r.h)}" rx="3" fill="#000" opacity=".16" transform="translate(2.5 4)"/>`;
+    s2+=`<rect x="${f1(r.x)}" y="${f1(r.y)}" width="${f1(r.w)}" height="${f1(r.h)}" rx="3" fill="${fill}" stroke="${type==='cable'?'#00000055':'#4f5b64'}" stroke-width="1"/>`;
+    if(type==='conduit'){
+      const c=axisRect(a,0,13,24);
+      s2+=`<rect x="${f1(c.x)}" y="${f1(c.y)}" width="${f1(c.w)}" height="${f1(c.h)}" rx="3" fill="url(#gSteel${r.h2?'H':'V'})" stroke="#4f5b64" stroke-width="1.2"/>`;
+    }else{
+      const c=axisRect(a,10,0,23);
+      s2+=`<rect x="${f1(c.x)}" y="${f1(c.y)}" width="${f1(c.w)}" height="${f1(c.h)}" rx="4" fill="url(#gSteel${r.h2?'H':'V'})" stroke="#4f5b64" stroke-width="1.2"/>`;
+      [-15,15].forEach(k=>{const sx=r.h2?a.x-a.dx*5:a.x+k,sy=r.h2?a.y+k:a.y-a.dy*5;s2+=`<circle cx="${f1(sx)}" cy="${f1(sy)}" r="3.6" fill="#8d99a3" stroke="#44505a" stroke-width="1"/><path d="M${f1(sx-2.4)} ${f1(sy)} h4.8" stroke="#333d45" stroke-width="1.2"/>`;});
+    }
+    return s2;
+  };
+  eg.forEach(x=>{
+    o.push(hw(x.a,x.out,x.Lin,x.e.type,x.e.awg));
+    const ex=x.J.x,ey=x.J.y,h2=x.a.dx!==0;
+    if(x.e.type==='cable')o.push(`<ellipse cx="${f1(ex)}" cy="${f1(ey)}" rx="${h2?3.6:13}" ry="${h2?13:3.6}" fill="#2a2e33" stroke="#0007" stroke-width="1"/>`);
+  });
+  let thr=null;
+  if(s.throughs){
+    const al=anchorAt(g,'left',.5),ar=anchorAt(g,'right',.5);
+    thr={al,ar};
+    o.push(hw(al,al.x+40,34,'conduit',s.throughs.awg));
+    o.push(hw(ar,(W-ar.x)+40,34,'conduit',s.throughs.awg));
+  }
+
+  /* fixture stud or hickey: sits on the back of the box, under the wires */
+  if(s.studs)o.push(studSVG(g.cx,g.cy,s.studKind));
+
+  /* devices pulled out in front of the box */
+  const N=s.devices,dxs=[];
+  for(let i=0;i<N;i++)dxs.push(450+(i-(N-1)/2)*140);
+  for(let i=0;i<N;i++)o.push(deviceSVG(dxs[i],devTop,s.devKind,N===1));
+  if(N)o.push(profileSVG(dxs[N-1]+118,devTop-5,s.depth,/^gfci/.test(s.devKind)));
+  /* white on the silver screw (left), black or red on the brass screw (right) */
+  const devT=(i,kind)=>kind==='white'?{x:dxs[i]-57,y:devTop+125-38}:kind==='black'?{x:dxs[i]+57,y:devTop+125-38}:{x:dxs[i]-56.5,y:devTop+125+76};
+
+  /* connector layout: white left, black right, red lower right, bond along the bottom */
+  const ix=g.x0+45,iy=g.y0+55,iw=g.w-90,ih=g.h-110,horiz=g.w>g.h*1.3;
+  const quad={white:[.27,.30],black:[.73,.30],red:[.73,.60],bond:[.5,.80]},per={},cpos=[];
+  d.caps.forEach((c,i)=>{(per[c.group]=per[c.group]||[]).push(i);});
+  Object.keys(per).forEach(gn=>{
+    const ids=per[gn],k=ids.length,q=quad[gn];
+    ids.forEach((ci,j)=>{
+      const off=(j-(k-1)/2)*(horiz?64:50);
+      cpos[ci]={x:ix+q[0]*iw+(horiz?off:0),y:iy+q[1]*ih+(horiz?0:off)};
+    });
+  });
+
+  /* order each cable's wires so they leave in the same order as their connectors: no crossing inside one cable */
+  const entryCap=eg.map(()=>({}));
+  d.caps.forEach((c,ci)=>c.wires.forEach(w=>{if(w.src==='entry')entryCap[w.i][c.group]=ci;}));
+  eg.forEach((x,i)=>{
+    const keyed=x.conds.map(cn=>{const gn=(cn==='green'||cn==='bare')?'bond':cn,ci=entryCap[i][gn];return{gn,p:cpos[ci].x*x.perp.x+cpos[ci].y*x.perp.y};});
+    keyed.sort((a,b)=>a.p-b.p||(a.gn<b.gn?-1:1));
+    x.rank={};keyed.forEach((k,r)=>{x.rank[k.gn]=r;});x.n=keyed.length;
+  });
+  const FAN=small?30:44;
+  eg.forEach(x=>{
+    let dn=999;
+    eg.forEach(y=>{if(y!==x&&y.a.dx===x.a.dx&&y.a.dy===x.a.dy)dn=Math.min(dn,Math.hypot(y.a.x-x.a.x,y.a.y-x.a.y));});
+    x.LS=Math.max(10,Math.min((g.cast||small)?16:22,(dn-16)/Math.max(1,x.conds.length-1)));
+  });
+  const startOf=(w,gn)=>{
+    if(w.src==='entry'){
+      const x=eg[w.i],m=x.rank[gn]-(x.n-1)/2;
+      return{x:x.J.x+x.perp.x*m*5,y:x.J.y+x.perp.y*m*5,dir:{x:x.a.dx,y:x.a.dy},
+        fan:{x:x.J.x+x.a.dx*FAN+x.perp.x*m*x.LS,y:x.J.y+x.a.dy*FAN+x.perp.y*m*x.LS}};
+    }
+    if(w.src==='dev'){const t=devT(w.i,gn==='bond'?'bond':gn);return{x:t.x,y:t.y,dir:gn==='bond'?{x:-1,y:-.25}:{x:gn==='black'?.4:-.4,y:-1}};}
+    return{x:scrP.x,y:scrP.y,dir:{x:0,y:-1}};
+  };
+
+  /* cap orientation and where each wire meets its cap (side by side, so the wires into one cap can be counted) */
+  const capU=[];
+  d.caps.forEach((c,ci)=>{
+    let vx=0,vy=0;
+    c.wires.forEach(w=>{const st=w._st=startOf(w,c.group),f=st.fan||st;vx+=cpos[ci].x-f.x;vy+=cpos[ci].y-f.y;});
+    const n=Math.hypot(vx,vy)||1,u=capU[ci]={x:vx/n,y:vy/n},pu={x:-u.y,y:u.x};
+    const arr=c.wires.map(w=>{const f=w._st.fan||w._st;return{w,p:f.x*pu.x+f.y*pu.y};}).sort((a,b)=>a.p-b.p);
+    const sp=Math.min(8,26/Math.max(1,arr.length-1));
+    arr.forEach((a,k)=>{const m=k-(arr.length-1)/2;a.w._end={x:cpos[ci].x+pu.x*m*sp+u.x*4*sc,y:cpos[ci].y+pu.y*m*sp+u.y*4*sc};});
+  });
+  const pathFor=(w,ci)=>{
+    const st=w._st,E=w._end,u=capU[ci];
+    if(st.fan){
+      const f=st.fan,l=Math.max(36,Math.hypot(E.x-f.x,E.y-f.y)*.42);
+      return `M ${f1(st.x)} ${f1(st.y)} C ${f1(st.x+st.dir.x*14)} ${f1(st.y+st.dir.y*14)}, ${f1(f.x-st.dir.x*12)} ${f1(f.y-st.dir.y*12)}, ${f1(f.x)} ${f1(f.y)} C ${f1(f.x+st.dir.x*l)} ${f1(f.y+st.dir.y*l)}, ${f1(E.x-u.x*l)} ${f1(E.y-u.y*l)}, ${f1(E.x)} ${f1(E.y)}`;
+    }
+    const l=Math.max(40,Math.hypot(E.x-st.x,E.y-st.y)*.4);
+    return `M ${f1(st.x)} ${f1(st.y)} C ${f1(st.x+st.dir.x*l)} ${f1(st.y+st.dir.y*l)}, ${f1(E.x-u.x*l)} ${f1(E.y-u.y*l)}, ${f1(E.x)} ${f1(E.y)}`;
+  };
+  const colorOf=(w,gn)=>gn==='bond'?(w.kind==='ins'?'green':'bare'):gn;
+
+  /* through conductors */
+  if(thr){
+    const cols=['black','white','red'];
+    for(let j=0;j<s.throughs.n;j++){
+      const yy=g.cy+(j-(s.throughs.n-1)/2)*18,x1=thr.al.x+34,x2=thr.ar.x-34;
+      o.push(wirePath(`M ${f1(x1)} ${f1(yy)} C ${f1(x1+130)} ${f1(yy)}, ${f1(x2-130)} ${f1(yy)}, ${f1(x2)} ${f1(yy)}`,cols[j],s.throughs.awg));
+    }
+  }
+  /* jumpers between two connectors of the same colour */
+  d.links.forEach(l=>{
+    const A=cpos[l.a],B=cpos[l.b],mx=(A.x+B.x)/2+(A.y-B.y)*.18,my=(A.y+B.y)/2+(B.x-A.x)*.18;
+    o.push(wirePath(`M ${f1(A.x)} ${f1(A.y)} Q ${f1(mx)} ${f1(my)} ${f1(B.x)} ${f1(B.y)}`,l.group==='bond'?'bare':l.group,L));
+  });
+  /* wires from the cables, then device pigtails and bonding jumpers */
+  ['entry','other'].forEach(ph=>{
+    d.caps.forEach((c,ci)=>c.wires.forEach(w=>{
+      if((ph==='entry')!==(w.src==='entry'))return;
+      o.push(wirePath(pathFor(w,ci),colorOf(w,c.group),w.awg));
+    }));
+  });
+
+  /* connectors */
+  d.caps.forEach((c,ci)=>o.push(marette(cpos[ci].x,cpos[ci].y,capU[ci],sc,L)));
+
+  /* copper loops on device screws */
+  for(let i=0;i<N;i++){
+    ['black','white','bond'].forEach(k=>{const t=devT(i,k),sd=k==='bond';const sh=sd?`<circle cx="${f1(t.x)}" cy="${f1(t.y)}" r="11" fill="none" stroke="#cf8a52" stroke-width="2.4"/>`:`<ellipse cx="${f1(t.x)}" cy="${f1(t.y)}" rx="10.5" ry="5" fill="none" stroke="#cf8a52" stroke-width="2.4"/>`;o.push(sh);});
+  }
+
+  /* tags: the dots show what is in each cable */
+  const sideSeen={};
+  eg.forEach(x=>{
+    const sk=x.a.dx+','+x.a.dy,k=(sideSeen[sk]=(sideSeen[sk]||0)+1)-1,gap=78+(k%2)*34;
+    const px=x.a.x-x.a.dx*gap,py=x.a.y-x.a.dy*gap;
+    o.push(tagSVG(px,py,x.e.type==='cable'?`${LETTERS[x.i]}  ${x.e.awg}/${x.e.cond}`:`${LETTERS[x.i]}  No.${x.e.awg}`,W,H,x.conds));
+  });
+  if(thr){
+    const t=LETTERS[s.entries.length],chips=['black','white','red'].slice(0,s.throughs.n);
+    o.push(tagSVG(thr.al.x-78,thr.al.y,`${t}  through`,W,H,chips));
+    o.push(tagSVG(thr.ar.x+78,thr.ar.y,`${t}  through`,W,H,chips));
+  }
+  if(s.studs)o.push(tagSVG(g.cx,g.cy+40,s.studKind==='hickey'?'hickey':'stud',W,H));
+  if(N===1){
+    ['white','black'].forEach(k=>{const t=devT(0,k);o.push(tagSVG(t.x+(k==='white'?-50:50),devTop+52,'pigtail',W,H));});
+    {const t=devT(0,'bond');o.push(tagSVG(t.x-82,t.y+34,'bond jumper',W,H));}
+  }
+  o.push('</svg>');
+  return o.join('');
+}
+
+/* =====================================================================
+   INTERFACE
+   ===================================================================== */
+const $=id=>document.getElementById(id);
+const state={q:null,attempts:0,done:false,qn:0,tab:'practice'};
+const KEY='boxfill-lab-v2';
+let score={first:0,second:0,missed:0,streak:0,best:0};
+function loadScore(){try{const v=JSON.parse(localStorage.getItem(KEY)||'null');if(v&&typeof v.first==='number')score=v;}catch(e){}}
+function saveScore(){try{localStorage.setItem(KEY,JSON.stringify(score));}catch(e){}}
+function renderScore(){
+  $('scorebar').innerHTML=`<span>First try <b>${score.first}</b></span><span>Second try <b>${score.second}</b></span><span>Missed <b>${score.missed}</b></span><span>Streak <b>${score.streak}</b></span><span>Best streak <b>${score.best}</b></span>`;
+}
+
+function renderTries(){
+  const a=state.attempts,left=2-a;
+  let dots='';
+  for(let i=1;i<=2;i++){
+    let cls='dot';
+    if(i<=a){cls+=(state.done&&state.result==='ok'&&i===a)?' hit':' miss';}
+    dots+=`<span class="${cls}"></span>`;
+  }
+  let txt;
+  if(state.done)txt=state.result==='ok'?`Solved on try ${a}`:(state.result==='skip'?'Skipped':'Out of tries');
+  else txt=`${left} ${plural(left,'try','tries')} left`;
+  $('tries').innerHTML=dots+`<span>${txt}</span>`;
+}
+
+function newQuestion(){
+  const q=generate($('difficulty').value,$('method').value,$('boxFilter').value);
+  state.q=q;state.attempts=0;state.done=false;state.result=null;state.qn++;
+  renderQuestion();
+}
+function choiceExtra(q,b){
+  if(!$('showVol').checked)return '';
+  return q.method==='count'?`holds ${maxCount(b,q.L)} No. ${q.L}`:`${b.ml} mL`;
+}
+function refreshChoiceText(){
+  const q=state.q;if(!q)return;
+  document.querySelectorAll('#choices .choice').forEach(l=>{l.querySelector('.cx').textContent=choiceExtra(q,boxOf(l.dataset.id));});
+}
+function renderQuestion(){
+  const q=state.q;
+  $('figTitle').textContent=figTitleText(q);
+  $('figSub').textContent='Choose the box size from the list';
+  $('figure').innerHTML=drawScene(q);
+  $('qTitle').textContent=`Question ${state.qn}`;
+  $('qLead').textContent=leadText(q);
+  $('inv').innerHTML=describe(q).map(it=>`<li><span class="tag">${it.tag}</span><span>${it.html}</span></li>`).join('');
+  $('ask').textContent=askText(q);
+  $('fields').innerHTML=q.method==='count'
+    ?`<div class="field"><label for="fA">Insulated conductors counted</label><input id="fA" type="text" inputmode="numeric" autocomplete="off" placeholder="e.g. 9"></div><div class="field"><label for="fB">Total to fit, after adding the Subrule (2) reductions</label><input id="fB" type="text" inputmode="numeric" autocomplete="off" placeholder="e.g. 12"></div>`
+    :`<div class="field"><label for="fA">Required usable space (mL)</label><input id="fA" type="text" inputmode="decimal" autocomplete="off" placeholder="e.g. 172.2"></div>`;
+  $('choices').innerHTML=q.choiceIds.map(id=>`<label class="choice" data-id="${id}"><input type="radio" name="boxchoice" value="${id}"><span><b class="cn">${esc(boxOf(id).name)}</b><span class="cx"></span></span></label>`).join('');
+  refreshChoiceText();
+  $('checkBtn').disabled=false;$('skipBtn').disabled=false;
+  $('feedback').innerHTML='';$('solution').innerHTML='';
+  $('nextRow').classList.add('hidden');
+  renderTries();
+}
+function num(v){const t=String(v).trim().replace(',','.');if(t==='')return null;const n=Number(t);return isFinite(n)?n:null;}
+function readAnswer(){
+  const q=state.q,a=num($('fA').value),c=(document.querySelector('input[name="boxchoice"]:checked')||{}).value;
+  if(a===null||!c)return null;
+  if(q.method==='count'){const b=num($('fB').value);if(b===null)return null;return{a:Math.round(a),b:Math.round(b),c};}
+  return{a,c};
+}
+function clearChoiceMarks(){document.querySelectorAll('#choices .choice').forEach(l=>l.classList.remove('good','bad'));}
+function mark(r){
+  const set=(id,ok)=>{const el=$(id);if(el){el.classList.toggle('good',ok);el.classList.toggle('bad',!ok);}};
+  set('fA',r.ok.a);if(state.q.method==='count')set('fB',r.ok.b);
+  clearChoiceMarks();
+  const chosen=document.querySelector('input[name="boxchoice"]:checked');
+  if(chosen)chosen.closest('.choice').classList.add(r.ok.c?'good':'bad');
+}
+function lock(){
+  document.querySelectorAll('#ansForm input').forEach(i=>i.disabled=true);
+  $('checkBtn').disabled=true;$('skipBtn').disabled=true;
+  $('nextRow').classList.remove('hidden');
+}
+function finish(result,r){
+  state.done=true;state.result=result;
+  lock();
+  if(result==='ok'){
+    if(state.attempts===1)score.first++;else score.second++;
+    score.streak++;score.best=Math.max(score.best,score.streak);
+    $('feedback').innerHTML=`<div class="notice ok"><b>Correct${state.attempts===1?' on the first try':' on your second try'}.</b>Here is the full working so you can check your method.</div>`;
+  }else{
+    score.missed++;score.streak=0;
+    $('feedback').innerHTML=`<div class="notice bad"><b>Out of tries.</b>Here is the worked solution. Compare each line with your own working.</div>`;
+    const right=[...document.querySelectorAll('#choices .choice')].find(l=>boxOf(l.dataset.id).ml===state.q.ansMl);
+    if(right)right.classList.add('answer');
+  }
+  saveScore();renderScore();renderTries();
+  $('solution').innerHTML=solutionHTML(state.q);
+  $('nextBtn').focus({preventScroll:true});
+}
+function onSubmit(e){
+  e.preventDefault();
+  if(state.done)return;
+  const ans=readAnswer();
+  if(!ans){
+    $('feedback').innerHTML='<div class="notice warn"><b>Finish your answer first.</b>Fill in every box and choose a box size. This does not use up a try.</div>';
+    return;
+  }
+  state.attempts++;
+  const r=grade(state.q,ans);
+  mark(r);
+  if(r.all)finish('ok',r);
+  else if(state.attempts>=2)finish('out',r);
+  else{
+    renderTries();
+    const anyOk=r.ok.a||r.ok.b||r.ok.c;
+    $('feedback').innerHTML=`<div class="notice warn"><b>Not quite. You have one try left.</b>${anyOk?'Parts outlined in green are right. Anything outlined in red needs another look.':'Everything outlined in red needs another look.'}<ul>${r.hints.map(h=>`<li>${esc(h)}</li>`).join('')}</ul></div>`;
+    const first=document.querySelector('#fields input.bad');
+    if(first)first.focus();
+  }
+}
+function onSkip(){
+  if(state.done)return;
+  state.done=true;state.result='skip';score.streak=0;saveScore();renderScore();
+  lock();renderTries();
+  $('feedback').innerHTML='<div class="notice warn"><b>Skipped.</b>No solution is shown for skipped questions. Move on when you are ready.</div>';
+}
+
+/* ---------- calculator ---------- */
+function initCalc(){
+  let opts='';
+  GROUPS.forEach(g=>{opts+=`<optgroup label="${g[1]}">${BOXES.filter(b=>b.group===g[0]).map(b=>`<option value="${b.id}">${esc(b.name)} · ${b.ml} mL</option>`).join('')}</optgroup>`;});
+  opts+='<option value="custom">Other box (marked volume)</option>';
+  $('bBox').innerHTML=opts;$('bBox').value='o4x15';
+  $('bConductors').innerHTML=SIZES.map(a=>`<div class="field"><label for="bw${a}">No. ${a} AWG</label><input id="bw${a}" type="number" min="0" value="0"></div>`).join('');
+  const autoOpt='<option value="auto">Same as largest conductor</option>'+SIZES.map(a=>`<option value="${a}">No. ${a} AWG</option>`).join('');
+  $('bCapAwg').innerHTML=autoOpt;$('bDevAwg').innerHTML=autoOpt;
+  document.querySelectorAll('#tab-calc input,#tab-calc select').forEach(el=>el.addEventListener('input',updateCalc));
+  $('bReset').addEventListener('click',()=>{
+    SIZES.forEach(a=>$('bw'+a).value=0);
+    ['bCaps','bStuds','bDevices','bDeepN','bBare','bPig'].forEach(i=>$(i).value=0);
+    $('bDepth').value=3.2;$('bBox').value='o4x15';$('bMethod').value='vol';$('bCapAwg').value='auto';$('bDevAwg').value='auto';
+    updateCalc();
+  });
+  updateCalc();
+}
+const ni=id=>Math.max(0,Math.floor(Number($(id).value)||0));
+function updateCalc(){
+  const sel=$('bBox').value,custom=sel==='custom',box=custom?null:boxOf(sel);
+  $('bCustomWrap').classList.toggle('hidden',!custom);
+  const avail=custom?Math.max(0,Number($('bCustom').value)||0):box.ml;
+  const cnt={};SIZES.forEach(a=>cnt[a]=ni('bw'+a));
+  const present=SIZES.filter(a=>cnt[a]>0),L=present.length?Math.min(...present):14;
+  const capA=$('bCapAwg').value==='auto'?L:Number($('bCapAwg').value),devA=$('bDevAwg').value==='auto'?L:Number($('bDevAwg').value);
+  const caps=ni('bCaps'),pairs=Math.floor(caps/2),studs=ni('bStuds'),devs=ni('bDevices'),deepN=Math.min(ni('bDeepN'),devs||ni('bDeepN')),depth=Math.max(0,Number($('bDepth').value)||0);
+  const deepVolume=(deepN>0&&depth>2.54)?deepN*32*depth:0;
+  const rows=[];
+  SIZES.forEach(a=>{if(cnt[a])rows.push([`${cnt[a]} × No. ${a} AWG insulated`,cnt[a]*T22[a]]);});
+  rows.push([`Connectors: ${caps} = ${pairs} ${plural(pairs,'pair')} × No. ${capA}`,pairs*T22[capA]]);
+  rows.push([`Fixture studs: ${studs} × No. ${L}`,studs*T22[L]]);
+  rows.push([`Flush devices: ${devs} × 2 × No. ${devA}`,devs*2*T22[devA]]);
+  if(deepVolume)rows.push([`Deep devices: ${deepN} × 32 cm³ × ${depth} cm`,deepVolume]);
+  const total=r1(rows.reduce((t,x)=>t+x[1],0));
+  const method=$('bMethod').value;
+  let usable=method==='count'&&!custom&&present.length<=1&&!deepVolume&&present.length===1;
+  let pass,used=total,note,statusTxt,statusSub;
+  $('rBox');
+  if(method==='count'&&usable){
+    const base=maxCount(box,L),red=studs+pairs+2*devs,permitted=base-red,counted=cnt[L];
+    pass=counted<=permitted;
+    statusSub=`${counted} counted, ${permitted} permitted`;
+    note=`<b>Table 23 check.</b> Maximum for No. ${L} AWG in ${esc(box.name)} is ${base}. Reduce by ${studs} for studs, ${pairs} for connector pairs and ${2*devs} for devices. That leaves ${permitted}. You have ${counted}.`;
+  }else{
+    pass=total<=avail+1e-9;
+    statusSub=pass?'Required space does not exceed the usable volume.':'Choose a larger box or take something out.';
+    note=method==='count'?'<b>Table 23 count is not available here.</b> It needs a listed box, one wire size and no deep-device adjustment. The result below uses Table 22 volumes instead.':'<b>Table 22 method.</b> Add every allowance and compare the total with the box volume.';
+  }
+  const pct=avail?100*total/avail:0;
+  $('rReq').textContent=mlTxt(total)+' mL';$('rAvail').textContent=avail+' mL';
+  $('rPct').textContent=r1(pct)+'%';$('rMargin').textContent=mlTxt(avail-total)+' mL';
+  $('rStatus').className='result '+(pass?'pass':'fail');
+  $('rStatus').innerHTML=`<strong>${pass?'Acceptable':'Overfilled'}</strong>${statusSub}`;
+  $('rBar').style.width=Math.min(pct,100)+'%';$('rBar').classList.toggle('over',pct>100);
+  $('rRows').innerHTML=rows.map(r=>`<tr><td>${r[0]}</td><td class="n">${mlTxt(r[1])}</td></tr>`).join('')+`<tr class="total"><td>Total</td><td class="n">${mlTxt(total)}</td></tr>`;
+  const extra=[];
+  if(caps%2)extra.push('A single unpaired connector adds nothing.');
+  if(ni('bBare')||ni('bPig'))extra.push('Bare bonding conductors and inside pigtails are not counted.');
+  $('rNote').innerHTML=note+(extra.length?'<br>'+extra.join(' '):'');
+}
+
+/* ---------- reference tables ---------- */
+function initRef(){
+  $('t22body').innerHTML=SIZES.map(a=>`<tr><td>No. ${a}</td><td class="n">${T22[a]}</td><td class="n">${T22IN[a]}</td></tr>`).join('');
+  let h='';
+  GROUPS.forEach(g=>{
+    h+=`<tr><th class="grp" colspan="8">${g[1]}</th></tr>`;
+    BOXES.filter(b=>b.group===g[0]).forEach(b=>{
+      h+=`<tr><td>${esc(b.name)}</td><td class="n">${b.ml}</td><td class="n">${b.in3}</td>${SIZES.map(a=>`<td class="n">${maxCount(b,a)}</td>`).join('')}</tr>`;
+    });
+  });
+  $('t23body').innerHTML=h;
+}
+
+/* ---------- tabs and init ---------- */
+function switchTab(name){
+  state.tab=name;
+  ['practice','calc','ref'].forEach(t=>{
+    $('tab-'+t).classList.toggle('hidden',t!==name);
+    $('tabBtn-'+t).setAttribute('aria-selected',t===name?'true':'false');
+  });
+}
+function init(){
+  loadScore();renderScore();initCalc();initRef();
+  document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
+  $('newQ').addEventListener('click',newQuestion);
+  ['method','difficulty','boxFilter'].forEach(id=>$(id).addEventListener('change',newQuestion));
+  $('ansForm').addEventListener('submit',onSubmit);
+  $('showVol').addEventListener('change',refreshChoiceText);
+  $('choices').addEventListener('change',()=>{if(!state.done)clearChoiceMarks();});
+  $('fields').addEventListener('input',e=>{if(!state.done&&e.target.classList)e.target.classList.remove('good','bad');});
+  $('skipBtn').addEventListener('click',onSkip);
+  $('nextBtn').addEventListener('click',()=>{newQuestion();$('qCard').scrollIntoView({block:'start',behavior:'smooth'});});
+  newQuestion();
+}
+if(typeof window!=='undefined'&&!window.__NO_INIT)init();
+</script>
+</body>
+</html>
